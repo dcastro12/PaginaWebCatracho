@@ -1,0 +1,103 @@
+:root {
+  /* Base */
+  --cat-bg: #0b0d10;
+  --cat-surface: #111318;
+  --cat-surface-strong: rgba(0, 0, 0, 0.86);
+  --cat-surface-soft: #0f1217;
+  --cat-overlay: rgba(0, 0, 0, 0.55);
+
+  /* Bordes y líneas */
+  --cat-line: #2a2f3a;
+  --cat-line-strong: #3a4150;
+
+  /* Texto */
+  --cat-text: #f5f7fa;
+  --cat-text-soft: #b8c0cc;
+  --cat-text-muted: #8e97a6;
+
+  /* Accent */
+  --cat-accent: #1ea7ff;
+  --cat-accent-hover: #3ab6ff;
+  --cat-accent-pressed: #1793e0;
+  --cat-accent-soft: rgba(30, 167, 255, 0.16);
+
+  /* Estados */
+  --cat-state-error: #ff4d4f;
+  --cat-state-success: #2ecc71;
+
+  /* Sombras */
+  --cat-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+
+  /* Radios */
+  --cat-radius-xl: 24px;
+  --cat-radius-lg: 18px;
+  --cat-radius-md: 14px;
+  --cat-radius-sm: 12px;
+
+  /* Contenedor */
+  --cat-container: 1200px;
+
+  /* Fuentes */
+  --cat-font-display: Montserrat, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --cat-font-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+
+  /* Tipografía desktop */
+  --cat-h1-size: 48px;
+  --cat-h1-lh: 56px;
+  --cat-h1-weight: 700;
+  --cat-h1-tracking: 0.18em;
+
+  --cat-h2-size: 32px;
+  --cat-h2-lh: 40px;
+  --cat-h2-weight: 700;
+  --cat-h2-tracking: 0.14em;
+
+  --cat-h3-size: 22px;
+  --cat-h3-lh: 30px;
+  --cat-h3-weight: 600;
+  --cat-h3-tracking: 0.08em;
+
+  --cat-body-size: 16px;
+  --cat-body-lh: 26px;
+  --cat-body-weight: 400;
+
+  --cat-small-size: 14px;
+  --cat-small-lh: 22px;
+  --cat-small-weight: 400;
+
+  --cat-caption-size: 12px;
+  --cat-caption-lh: 18px;
+  --cat-caption-weight: 400;
+
+  /* Tipografía mobile */
+  --cat-h1-size-mobile: 32px;
+  --cat-h1-lh-mobile: 40px;
+
+  --cat-h2-size-mobile: 24px;
+  --cat-h2-lh-mobile: 32px;
+
+  --cat-h3-size-mobile: 18px;
+  --cat-h3-lh-mobile: 26px;
+
+  /* Botones */
+  --cat-btn-sm-w: 120px;
+  --cat-btn-sm-h: 36px;
+  --cat-btn-md-w: 140px;
+  --cat-btn-md-h: 44px;
+  --cat-btn-lg-w: 160px;
+  --cat-btn-lg-h: 52px;
+  --cat-btn-radius: 12px;
+  --cat-btn-disabled-opacity: 0.45;
+
+  /* Modal */
+  --cat-modal-radius-desktop: 18px;
+  --cat-modal-radius-mobile: 16px;
+  --cat-modal-close-size: 44px;
+  --cat-modal-close-size-mobile: 40px;
+
+  /* Tabla */
+  --cat-row-height: 44px;
+  --cat-row-radius: 10px;
+  --cat-row-zebra-a: #111318;
+  --cat-row-zebra-b: #0f1217;
+}
