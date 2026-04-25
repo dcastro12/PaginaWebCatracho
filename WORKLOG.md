@@ -75,3 +75,23 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `hero-nav-bar` como grid de 8 columnas con `border-radius: 999px` y `overflow: hidden` para que las pills internas se recorten al óvalo. `hero-nav-pill` neutro, divisores entre pills, hover/focus en accent blue (background semi-transparente + box-shadow inset). En `min-width: 992px` la primera y última pill toman el radio del contenedor para que el hover no se vea cuadrado en las esquinas.
 - Logo `catracho-mark.png` colocado en `src/assets/brand/`. Importado por `Hero` para que Vite le aplique fingerprint.
 - `SiteShell` ahora monta `Hero` con los `sectionLinks` y el `open` del hook, así cualquier click en una pill empuja el hash canónico.
+
+### 2026-04-24 — Hooks del panel y PanelHost base
+
+- Tres hooks pequeños y focalizados para los efectos laterales del modal:
+  - `useBodyScrollLock(isLocked)` guarda el `overflow` previo del body, lo cambia a `hidden` mientras el panel esté abierto y lo restaura al desmontar.
+  - `useEscapeKey(callback, enabled)` adjunta un listener de `keydown` sólo cuando el flag está activo, llama al callback al recibir Escape y limpia el listener al desmontar.
+  - `useDocumentTitle(title | null)` cambia `document.title` cuando recibe un string, y lo restaura al string anterior cuando recibe `null` o se desmonta.
+- `PanelHost` con props `title`, `isOpen`, `onClose`, `compact?` y `children`. Devuelve `null` cuando está cerrado para no dejar nodos en el DOM. Cuando abre:
+  - Aplica los tres hooks (scroll lock, ESC y document title con sufijo `| CATRACHO`).
+  - Foco automático al frame al montar (`panelRef`).
+  - Cierre por X (botón con `aria-label`), Escape (vía hook) y mouse-down sobre el overlay (cuando el target del evento es el overlay mismo, no un descendiente).
+  - Soporte para variante compact via prop booleana.
+- Estilos en `globals.css`:
+  - `.panel-overlay` fixed full-viewport con `var(--cat-overlay)` + `backdrop-filter: blur(10px)` para el efecto glass.
+  - `.panel-frame` con `width: min(1320px, 92vw)` y `height: min(92dvh, 960px)`, flex column con `overflow: hidden` y `border-radius: var(--cat-radius-xl)`.
+  - `.panel-frame--compact` con ancho 820px y `align-self: center` para no estirarse en mobile cuando el overlay esté en `align-items: stretch`.
+  - `.panel-frame__toolbar` con título a la izquierda y close button a la derecha, separados por `border-bottom`.
+  - `.panel-close` con borde de 2px que vira a accent en hover/focus.
+  - `.panel-frame__body` con `flex: 1 1 auto`, `min-height: 0` (para que el scroll interno respete la altura del frame) y la variante `--locked` con `overflow: hidden` para que las secciones manejen su propio scroll.
+- `SiteShell` ahora monta `PanelHost` con `title`, `isOpen` y `onClose` derivados del hook, y pasa `compact={activeId === 'mision-vision'}` para que sólo MyV use el frame compacto. Mientras las secciones reales no existen, `renderSection` devuelve un placeholder temporal que se reemplaza en la fase F.

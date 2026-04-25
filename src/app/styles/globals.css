@@ -221,6 +221,94 @@ img {
   outline: none;
 }
 
+/* ---------- Panel host ---------- */
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--cat-overlay);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.panel-frame {
+  width: min(1320px, 92vw);
+  height: min(92vh, 960px);
+  height: min(92dvh, 960px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--cat-radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(11, 13, 16, 0.95), rgba(5, 6, 8, 0.96));
+  box-shadow: var(--cat-shadow);
+}
+
+.panel-frame--compact {
+  width: min(820px, 92vw);
+  height: auto;
+  max-height: min(92vh, 620px);
+  max-height: min(92dvh, 620px);
+  align-self: center;
+  justify-self: center;
+}
+
+.panel-frame__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+.panel-frame__title {
+  margin: 0;
+  font-family: var(--cat-font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cat-text);
+}
+
+.panel-close {
+  width: var(--cat-modal-close-size);
+  height: var(--cat-modal-close-size);
+  display: grid;
+  place-items: center;
+  flex: none;
+  border: 2px solid rgba(184, 192, 204, 0.9);
+  border-radius: var(--cat-btn-radius);
+  background: rgba(10, 13, 20, 0.8);
+  color: var(--cat-text);
+  font-size: 1.55rem;
+  line-height: 1;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.panel-close:hover,
+.panel-close:focus-visible {
+  border-color: var(--cat-accent);
+  color: var(--cat-accent);
+  outline: none;
+}
+
+.panel-frame__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 1.5rem 1.75rem 1.75rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.panel-frame__body--locked {
+  overflow: hidden;
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {

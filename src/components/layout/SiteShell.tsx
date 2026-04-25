@@ -4,6 +4,7 @@ import type { SectionId } from '../../types/content';
 import { useHashPanelSync } from '../../hooks/useHashPanelSync';
 import { Footer } from './Footer';
 import { Hero } from './Hero';
+import { PanelHost } from '../panels/PanelHost';
 
 const legacyHashMap: Readonly<Record<string, SectionId>> = {
   myv: 'mision-vision',
@@ -13,11 +14,19 @@ const legacyHashMap: Readonly<Record<string, SectionId>> = {
   contactos: 'contactenos',
 };
 
+function renderSection(sectionId: SectionId) {
+  return (
+    <section className="section-stack">
+      <p>Sección «{sectionId}» pendiente de contenido.</p>
+    </section>
+  );
+}
+
 export function SiteShell() {
   const validIds = useMemo(() => new Set<SectionId>(sectionLinks.map((link) => link.id)), []);
-  const { activeId, open } = useHashPanelSync<SectionId>({ validIds, legacyMap: legacyHashMap });
+  const { activeId, open, close } = useHashPanelSync<SectionId>({ validIds, legacyMap: legacyHashMap });
 
-  void activeId;
+  const currentSection = sectionLinks.find((link) => link.id === activeId) ?? null;
 
   return (
     <div className="site-root">
@@ -29,6 +38,15 @@ export function SiteShell() {
 
       <Hero links={sectionLinks} onSelect={open} />
       <Footer />
+
+      <PanelHost
+        title={currentSection?.label ?? 'CATRACHO'}
+        isOpen={Boolean(currentSection)}
+        onClose={close}
+        compact={activeId === 'mision-vision'}
+      >
+        {activeId ? renderSection(activeId) : null}
+      </PanelHost>
     </div>
   );
 }
