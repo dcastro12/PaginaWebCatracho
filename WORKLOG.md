@@ -59,3 +59,10 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - `public/documents/leyes-y-otros/` con los 5 PDFs.
   - `public/media/` con el MP4 del bloqueo en la Panamericana.
 - Las thumbnails de imágenes (importadas vía Vite) se quedan en `src/assets/thumbnails/` para que el bundler les aplique fingerprint y cache busting.
+
+### 2026-04-24 — Shell, hash sync y footer
+
+- Hook `src/hooks/useHashPanelSync.ts` parametrizado en `TId extends string`. Recibe `validIds: ReadonlySet<TId>` y `legacyMap?: Record<string, TId>`, expone `{ activeId, open, close }`. Lee el hash inicial al montar, escucha `hashchange`, traduce hashes legacy a canónicos vía `history.replaceState` y limpia el `#` residual al cerrar usando `pushState` con sólo `pathname + search`. Toda actualización va dentro de `startTransition` para no bloquear input.
+- `Footer` simple con copyright dinámico (`new Date().getFullYear()`) sobre gradiente vertical sutil.
+- `SiteShell` orquesta backdrop dual (`--desktop` y `--mobile`), vignette, dos `site-gradient` decorativos y el footer. Mantiene `validIds` memoizado y consume el hook con un `legacyHashMap` que mapea las cinco rutas del sitio antiguo (`myv`, `info`, `noticias`, `distancia`, `contactos`) a sus canónicos. Hero y PanelHost se enchufan en sus fases correspondientes.
+- `App.tsx` ahora delega todo el render a `SiteShell`.

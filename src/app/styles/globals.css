@@ -95,6 +95,23 @@ img {
   background: radial-gradient(circle at center, rgba(58, 182, 255, 0.32), rgba(58, 182, 255, 0) 70%);
 }
 
+/* ---------- Footer ---------- */
+
+.site-footer {
+  position: relative;
+  background: linear-gradient(180deg, rgba(5, 7, 10, 0.7), rgba(5, 7, 10, 0.9));
+  padding: 0.9rem 0 1.1rem;
+  color: var(--cat-text-muted);
+  text-align: center;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 /* ---------- Scrollbars ---------- */
 
 * {
