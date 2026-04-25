@@ -66,3 +66,12 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `Footer` simple con copyright dinámico (`new Date().getFullYear()`) sobre gradiente vertical sutil.
 - `SiteShell` orquesta backdrop dual (`--desktop` y `--mobile`), vignette, dos `site-gradient` decorativos y el footer. Mantiene `validIds` memoizado y consume el hook con un `legacyHashMap` que mapea las cinco rutas del sitio antiguo (`myv`, `info`, `noticias`, `distancia`, `contactos`) a sus canónicos. Hero y PanelHost se enchufan en sus fases correspondientes.
 - `App.tsx` ahora delega todo el render a `SiteShell`.
+
+### 2026-04-24 — Hero, navegación principal y estilos del landing
+
+- `MainNav` con dos variantes: `hero` (pill grid de 8 columnas con `aria-label`) y `panel` (Bootstrap row con `nav-pill` que muestra eyebrow + label + description). El callback `onSelect(id)` queda contraído al tipo `SectionId` para que TS valide cualquier nuevo destino al toque.
+- `Hero` con `hero-shell` como flex column, `hero-stage-wrap` con padding generoso y `hero-card` translúcida (alpha 0.80–0.85) que muestra logo, h1 y slogan. La banda inferior `hero-nav-band` carga `MainNav` en variante hero y se sienta sobre un gradiente que oscurece levemente el fondo.
+- Estilos en `globals.css`: `hero-shell` flex 1 1 auto para que crezca dentro del shell, `hero-stage-wrap` con `min-height: 72vh` para que el card siempre tenga aire, `hero-card` con borde sutil y `box-shadow` de los tokens, `hero-logo` 56px en desktop, h1 con Montserrat + tracking 0.22em + clamp para escala fluida, slogan en uppercase con letter-spacing.
+- `hero-nav-bar` como grid de 8 columnas con `border-radius: 999px` y `overflow: hidden` para que las pills internas se recorten al óvalo. `hero-nav-pill` neutro, divisores entre pills, hover/focus en accent blue (background semi-transparente + box-shadow inset). En `min-width: 992px` la primera y última pill toman el radio del contenedor para que el hover no se vea cuadrado en las esquinas.
+- Logo `catracho-mark.png` colocado en `src/assets/brand/`. Importado por `Hero` para que Vite le aplique fingerprint.
+- `SiteShell` ahora monta `Hero` con los `sectionLinks` y el `open` del hook, así cualquier click en una pill empuja el hash canónico.

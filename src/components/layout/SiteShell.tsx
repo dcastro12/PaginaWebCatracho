@@ -3,6 +3,7 @@ import { sectionLinks } from '../../content/config/site';
 import type { SectionId } from '../../types/content';
 import { useHashPanelSync } from '../../hooks/useHashPanelSync';
 import { Footer } from './Footer';
+import { Hero } from './Hero';
 
 const legacyHashMap: Readonly<Record<string, SectionId>> = {
   myv: 'mision-vision',
@@ -14,7 +15,7 @@ const legacyHashMap: Readonly<Record<string, SectionId>> = {
 
 export function SiteShell() {
   const validIds = useMemo(() => new Set<SectionId>(sectionLinks.map((link) => link.id)), []);
-  const { activeId } = useHashPanelSync<SectionId>({ validIds, legacyMap: legacyHashMap });
+  const { activeId, open } = useHashPanelSync<SectionId>({ validIds, legacyMap: legacyHashMap });
 
   void activeId;
 
@@ -26,6 +27,7 @@ export function SiteShell() {
       <div className="site-gradient site-gradient--one" />
       <div className="site-gradient site-gradient--two" />
 
+      <Hero links={sectionLinks} onSelect={open} />
       <Footer />
     </div>
   );
