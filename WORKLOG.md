@@ -41,3 +41,10 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `SectionId` queda como única fuente de verdad para la navegación: cualquier nuevo modal o ruta tiene que extender este union antes de propagarse al resto del código.
 - Creado `src/content/config/site.ts` con `siteMeta` (nombre, slogan, fullName, heroBadge, heroSummary, footer) y `sectionLinks` (array de los 8 canonicals con `id`, `label`, `eyebrow` y `description`).
 - Texto del sitio con tildes y puntuación correcta desde el inicio (Misión & Visión, Información, Contáctenos, etc.).
+
+### 2026-04-24 — Editorial y datasets institucionales
+
+- Editorial de Historia en `src/content/editorial/history.ts`: `historyIntro`, `historyParagraphs` (5 párrafos cubriendo 1992–1993, asamblea de SPS, adopción del nombre, vida jurídica del 22-oct-1993, trayectoria reciente) y `missionVision` con los textos formales de Misión y Visión.
+- Dataset de servicios en `src/content/datasets/services.ts`: 6 `ServiceItem` (carnet, calcomanías, DARA, IHTT, boletines, asistencia) referenciados por nombre dentro de 4 `ServiceGroup` (Trámites, Asesoría, Comunicados, Permisos). Las referencias por variable evitan los problemas de orden si después se añade un servicio nuevo.
+- Dataset de información en `src/content/datasets/information.ts`: `informationSnapshot.updatedAt` como string `DD/MM/YYYY`, `dollarMetrics` con Compra/Venta y `dieselMetrics` con SPS/Tegucigalpa. Estructura preparada para que el cron diario reescriba sólo los valores sin tocar la forma.
+- Dataset de contactos en `src/content/datasets/contact.ts`: tres grupos (Teléfonos con celular como único contacto, Correos con presidencia/administración/servicios, Redes con Facebook oficial). Hrefs `tel:`, `mailto:` y URL completa según corresponde.
