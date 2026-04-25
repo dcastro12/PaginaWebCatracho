@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app/styles/tokens.css';
+import './app/styles/globals.css';
 import { App } from './app/App';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
