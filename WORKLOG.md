@@ -34,3 +34,10 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - Primitivo `.filter-chip` como tab redondeado con estado `.is-active` + hover/focus unificados.
 - `App.tsx` monta el shell básico (`site-root` + vignette + gradients) para poder validar el fondo global sin esperar a hero/footer.
 - `globals.css` registrado en `main.tsx` justo después de `tokens.css` para que los primitivos consuman variables sin race condition.
+
+### 2026-04-24 — Contratos de tipos y configuración de navegación
+
+- Creado `src/types/content.ts` con todos los contratos de datos compartidos: `SectionId` (union literal con los 8 canonicals), `SectionLink`, `ServiceItem`, `ServiceGroup`, `RequirementDownload`, `RequirementCategory`, `InfoMetric`, `PublicationKind`, `PublicationItem`, `DistanceRow`, `ContactItem` y `ContactGroup`.
+- `SectionId` queda como única fuente de verdad para la navegación: cualquier nuevo modal o ruta tiene que extender este union antes de propagarse al resto del código.
+- Creado `src/content/config/site.ts` con `siteMeta` (nombre, slogan, fullName, heroBadge, heroSummary, footer) y `sectionLinks` (array de los 8 canonicals con `id`, `label`, `eyebrow` y `description`).
+- Texto del sitio con tildes y puntuación correcta desde el inicio (Misión & Visión, Información, Contáctenos, etc.).
