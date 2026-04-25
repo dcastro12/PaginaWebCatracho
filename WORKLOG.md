@@ -48,3 +48,14 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - Dataset de servicios en `src/content/datasets/services.ts`: 6 `ServiceItem` (carnet, calcomanías, DARA, IHTT, boletines, asistencia) referenciados por nombre dentro de 4 `ServiceGroup` (Trámites, Asesoría, Comunicados, Permisos). Las referencias por variable evitan los problemas de orden si después se añade un servicio nuevo.
 - Dataset de información en `src/content/datasets/information.ts`: `informationSnapshot.updatedAt` como string `DD/MM/YYYY`, `dollarMetrics` con Compra/Venta y `dieselMetrics` con SPS/Tegucigalpa. Estructura preparada para que el cron diario reescriba sólo los valores sin tocar la forma.
 - Dataset de contactos en `src/content/datasets/contact.ts`: tres grupos (Teléfonos con celular como único contacto, Correos con presidencia/administración/servicios, Redes con Facebook oficial). Hrefs `tel:`, `mailto:` y URL completa según corresponde.
+
+### 2026-04-24 — Datasets de consulta y descargables
+
+- Requisitos en `src/content/datasets/requirements.ts`: tres `RequirementDownload` (DOC) — Comerciante Individual, Sociedad Mercantil y Requisitos de incorporación a CATRACHO — más una `RequirementCategory` "Incorporación a CATRACHO" con la lista completa de 8 items (escritura de constitución, certificado de operación, boleta de revisión vehicular, identidad y RTN, licencia de conducir del motorista, recibo de servicios, antecedentes penales, resolución DARA).
+- Publicaciones en `src/content/datasets/publications.ts`: 14 entries en total — 5 PDFs (Acuerdo PFI Agua Caliente, Decreto Seguro Carga 2018, Nueva Ley Terrestre, Rutas Fiscales 1, Rutas Fiscales 2), 7 imágenes (Amigos de CATRACHO, Agentes y Aduanas, 3 meses de amnistía, Precios navieras, Comunicado 02/11/2018, Vacunas, Modelo Climático Guatemala), 1 video (Carretera Panamericana bloqueada) y 1 enlace externo (Asamblea CIT en SPS). Los thumbnails se importan desde `src/assets/thumbnails/` y se reusan como `previewHref` para que la imagen original sirva tanto de miniatura como de preview a pantalla completa.
+- Distancias en `src/content/datasets/distances.ts`: 180+ rutas tipadas con `id`, `from`, `to` y `km`. Topónimos hondureños en mayúsculas con tildes correctas (Puerto Cortés, Santa Bárbara, Copán, Danlí, El Paraíso, Colón, La Unión, Atlántida, etc.). Origen consistente para que tablas por origen y búsquedas por destino funcionen sin normalización extra.
+- Binarios servidos como estáticos bajo `public/`:
+  - `public/documents/requisitos/` con los 3 DOCs.
+  - `public/documents/leyes-y-otros/` con los 5 PDFs.
+  - `public/media/` con el MP4 del bloqueo en la Panamericana.
+- Las thumbnails de imágenes (importadas vía Vite) se quedan en `src/assets/thumbnails/` para que el bundler les aplique fingerprint y cache busting.
