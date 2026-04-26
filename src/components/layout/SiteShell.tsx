@@ -5,6 +5,7 @@ import { useHashPanelSync } from '../../hooks/useHashPanelSync';
 import { Footer } from './Footer';
 import { Hero } from './Hero';
 import { PanelHost } from '../panels/PanelHost';
+import { HistoriaSection } from '../sections/historia/HistoriaSection';
 
 const legacyHashMap: Readonly<Record<string, SectionId>> = {
   myv: 'mision-vision',
@@ -15,11 +16,16 @@ const legacyHashMap: Readonly<Record<string, SectionId>> = {
 };
 
 function renderSection(sectionId: SectionId) {
-  return (
-    <section className="section-stack">
-      <p>Sección «{sectionId}» pendiente de contenido.</p>
-    </section>
-  );
+  switch (sectionId) {
+    case 'historia':
+      return <HistoriaSection />;
+    default:
+      return (
+        <section className="section-stack">
+          <p>Sección «{sectionId}» pendiente de contenido.</p>
+        </section>
+      );
+  }
 }
 
 export function SiteShell() {

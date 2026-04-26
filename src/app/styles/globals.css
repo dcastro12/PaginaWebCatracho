@@ -360,6 +360,61 @@ img {
   contain: layout paint;
 }
 
+/* ---------- Historia ---------- */
+
+.content-image {
+  width: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.content-image--history {
+  height: 100%;
+  min-height: 220px;
+  object-position: 10% center;
+}
+
+.history-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 0.48fr 0.52fr;
+  gap: 1.35rem;
+}
+
+.history-layout__media,
+.history-layout__copy {
+  min-height: 0;
+}
+
+.history-layout__copy {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(17, 19, 24, 0.88), rgba(9, 11, 14, 0.96));
+}
+
+.history-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  padding: 1.1rem 1.6rem 1.1rem 1.2rem;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.history-scroll p {
+  margin: 0;
+  color: var(--cat-text-soft);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.history-lead {
+  font-weight: 600;
+  color: var(--cat-text);
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {

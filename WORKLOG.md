@@ -109,3 +109,13 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `.panel-frame` con `opacity: 0` + `transform: scale(0.94)` por defecto, y `.panel-frame.is-open` lleva opacity 1 + scale 1 + `will-change: opacity, transform` aplicado solo mientras está abierto.
 - `contain: layout paint` en `.panel-frame` y `.section-stack` para aislar el cálculo de layout y paint del resto del documento.
 - Bloque `@media (prefers-reduced-motion: reduce)` que desactiva todas las transiciones del panel y deja `transform: none` para usuarios que pidan menos movimiento.
+
+### 2026-04-24 — Sección Historia
+
+- `HistoriaSection` consume `historyIntro` y `historyParagraphs` del editorial. El intro va como `history-lead` (más oscuro y bold) y los párrafos siguientes con `mb-0` para que el `gap` del scroll se encargue del espaciado.
+- Layout en grid de dos columnas (`grid-template-columns: 0.48fr 0.52fr`): la izquierda monta la imagen institucional (mesa con banderas regionales), la derecha contiene la columna scrolleable. En mobile el grid colapsa a una sola columna en su breakpoint propio.
+- `.content-image--history` con `object-position: 10% center` para que el encuadre muestre a las tres personas del lado izquierdo en lugar de centrar la foto en el grupo de banderas.
+- `.history-scroll` con scroll vertical, `scrollbar-gutter: stable` y `overscroll-behavior-y: contain` para que el scroll del modal no contagie al body. El padding lateral 1.6rem en el lado derecho deja aire entre el texto y la scrollbar.
+- `.history-layout__copy` con borde sutil y gradiente vertical para diferenciarse visualmente de la imagen.
+- `historia.jpg` colocada en `src/assets/sections/` para que Vite la fingerprint y la incluya en el bundle.
+- `SiteShell.renderSection` ahora hace switch sobre `SectionId` y enchufa `HistoriaSection` para `historia`. El resto de los ids siguen mostrando el placeholder hasta que aparezcan en las próximas tarjetas.
