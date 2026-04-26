@@ -139,3 +139,17 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `.service-list__item` con título en Montserrat uppercase + descripción en color soft. Borde sutil y fondo levemente más oscuro que la card que lo contiene.
 - `servicios.jpg` colocada en `src/assets/sections/`.
 - `SiteShell.renderSection` agrega el `case 'servicios'` apuntando a `ServiciosSection`.
+
+### 2026-04-24 — Sección Requisitos
+
+- `RequisitosSection` separa el contenido en dos bloques:
+  - Bloque superior con dos `requirements-download-card` (Comerciante Individual y Sociedad Mercantil) en grid de 2 columnas. Cada card tiene un meta (`requirements-download-card__meta`) con eyebrow "Requisitos para código de aduana:" y el nombre del documento limpio (sacando el prefijo "Código de aduana - "), más un botón primario `Descargar` que apunta al `.doc` del dataset.
+  - Bloque(s) por categoría con `requirements-group--scroll` que usa `grid-template-rows: auto minmax(0, 1fr)` para que el `requirements-list-shell` herede el alto sobrante del modal y muestre la lista numerada con scroll interno. Hoy hay una sola categoría ("Incorporación a CATRACHO") con los 8 items del proceso.
+  - Footer opcional con la tercera descarga (documento completo de incorporación). Botón secondary alineado a la derecha.
+- Estilos:
+  - `.requirements-group__title` como eyebrow uppercase centrado.
+  - `.requirements-download-grid` 2 columnas en desktop.
+  - `.requirements-download-card` con borde gris-azulado y fondo levemente azulado para diferenciarlo del fondo del modal.
+  - `.requirements-list-shell` con borde, padding asimétrico (1.6rem a la derecha) y `scrollbar-gutter: stable` para que el scroll no se monte sobre el texto numerado.
+  - `.requirements-footer .button-pill` con `white-space: normal` para que el label largo pueda envolver en pantallas pequeñas.
+- `SiteShell.renderSection` agrega el `case 'requisitos'`.
