@@ -188,3 +188,17 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - `distance-compact__row` con borde sutil que vira a accent en hover/focus/`is-active`. El número en accent blue por contraste.
   - Scroll vertical en ambas vistas con `scrollbar-gutter: stable`.
 - `SiteShell.renderSection` agrega el `case 'distancias'`.
+
+### 2026-04-24 — Sección Contactos
+
+- `ContactosSection` mapea `contactGroups` (Teléfonos / Correos / Redes) y por cada entry renderiza un `<a>` que envuelve el copy (detail + label) y el botón de acción.
+- Helper local `actionLabelFor(href)` decide el label del botón según el prefijo del href: `tel:` → "Llamar", `mailto:` → "Email", URL → "Abrir".
+- Cuando el href arranca con `http`, agrega `target="_blank"` y `rel="noreferrer"` para que las redes abran en una nueva pestaña sin riesgo de window.opener.
+- Botones uniformemente outline (`button-pill--secondary`); el accent blue lo pinta el estado hover/focus, no la jerarquía del item.
+- Estilos:
+  - `.contact-sections` flex 1 1 auto con scroll vertical, `scrollbar-gutter: stable` y `padding-right: 0.7rem` para separar el thumb del contenido.
+  - `.contact-group__title` eyebrow uppercase con tracking 0.18em.
+  - `.contact-entry` grid `1fr / auto`: copy a la izquierda, botón pegado a la derecha. Borde sutil que vira a accent en hover/focus-within.
+  - `.contact-entry__copy strong` y `span` con `overflow-wrap: anywhere` para que emails largos como `presidencia@catrachohn.com` puedan envolver sin desbordar la card.
+  - Botón con tamaño compacto fijo (108px min-width × 40px min-height) para que los tres tipos de acción se vean iguales independiente del label.
+- `SiteShell.renderSection` agrega el `case 'contactenos'`. Con esto el switch cubre los 8 canonicals y el `default` queda como `null` (la unión de `SectionId` lo hace inalcanzable, pero TS lo exige).

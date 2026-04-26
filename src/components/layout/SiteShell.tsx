@@ -12,6 +12,7 @@ import { RequisitosSection } from '../sections/requisitos/RequisitosSection';
 import { InformacionSection } from '../sections/informacion/InformacionSection';
 import { LeyesSection } from '../sections/leyes/LeyesSection';
 import { DistanciasSection } from '../sections/distancias/DistanciasSection';
+import { ContactosSection } from '../sections/contactos/ContactosSection';
 
 const legacyHashMap: Readonly<Record<string, SectionId>> = {
   myv: 'mision-vision',
@@ -37,12 +38,10 @@ function renderSection(sectionId: SectionId) {
       return <LeyesSection />;
     case 'distancias':
       return <DistanciasSection />;
+    case 'contactenos':
+      return <ContactosSection />;
     default:
-      return (
-        <section className="section-stack">
-          <p>Sección «{sectionId}» pendiente de contenido.</p>
-        </section>
-      );
+      return null;
   }
 }
 
