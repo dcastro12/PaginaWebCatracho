@@ -153,3 +153,12 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - `.requirements-list-shell` con borde, padding asimétrico (1.6rem a la derecha) y `scrollbar-gutter: stable` para que el scroll no se monte sobre el texto numerado.
   - `.requirements-footer .button-pill` con `white-space: normal` para que el label largo pueda envolver en pantallas pequeñas.
 - `SiteShell.renderSection` agrega el `case 'requisitos'`.
+
+### 2026-04-24 — Sección Información
+
+- `InformacionSection` con un `info-highlight` arriba que muestra "Actualización:" en uppercase + la fecha del snapshot en grande + una regla accent decorativa de 120×3 abajo. La fecha consume `informationSnapshot.updatedAt`.
+- Debajo, dos `information-group` (Dólar y Diésel) con título h3 uppercase y filas `information-row` formato `label / valor`. El valor se renderiza prefijado con `Lps. ` y el `L ` original del dataset se elimina con un `replace(/^L\s*/, '')` para que un eventual cambio del dataset (que el scraper actualice sólo el número) no rompa el formato.
+- Filas con `flex-wrap: wrap` y `overflow-wrap: anywhere` para que valores largos puedan envolver sin desbordar la card en mobile.
+- `information-groups` es flex 1 1 auto con `overflow-y: auto` y `scrollbar-gutter: stable`, así si en el futuro se suman más métricas (ej. otras ciudades), la card scrollea internamente sin romper el layout del modal.
+- `info-highlight__date` con clamp para escala fluida entre 1.7rem y 2.1rem según el viewport.
+- `SiteShell.renderSection` agrega el `case 'informacion'`.

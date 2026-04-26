@@ -9,6 +9,7 @@ import { HistoriaSection } from '../sections/historia/HistoriaSection';
 import { MissionVisionSection } from '../sections/myv/MissionVisionSection';
 import { ServiciosSection } from '../sections/servicios/ServiciosSection';
 import { RequisitosSection } from '../sections/requisitos/RequisitosSection';
+import { InformacionSection } from '../sections/informacion/InformacionSection';
 
 const legacyHashMap: Readonly<Record<string, SectionId>> = {
   myv: 'mision-vision',
@@ -28,6 +29,8 @@ function renderSection(sectionId: SectionId) {
       return <ServiciosSection />;
     case 'requisitos':
       return <RequisitosSection />;
+    case 'informacion':
+      return <InformacionSection />;
     default:
       return (
         <section className="section-stack">
