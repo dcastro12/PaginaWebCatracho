@@ -211,3 +211,20 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - **Tablet (≤1199)**: hero-nav-bar pasa a `repeat(4, 1fr)` con border-radius 22px (en lugar de 999px) para que las 8 pills se acomoden en 2 filas de 4.
   - **Tablet (≤991)**: panel 94vw / 90dvh con cap 820. Hero card sin `min-height` impuesto. Requirements download grid colapsa a 1 columna. History layout pasa a 1 columna con `grid-template-rows: auto minmax(0, 1fr)` para que la imagen no se estire. Banner Historia con min-height 220 / max-height 260; banner Servicios con max-height 200.
 - El bloque mobile (≤767) y el micro-tier (≤430) se atacan en G.2.
+
+### 2026-04-24 — Mobile y micro-tier de phone chico
+
+- **Mobile (≤767)**: bloque grande con todos los ajustes que necesita el sitio en pantallas chicas.
+  - Backdrop swap: oculta el desktop y muestra `--mobile` (la versión cuadrada del hero se carga en H.1).
+  - Hero: stage con `flex: 0 0 auto` + `padding: 3vh 0 1rem` para bajar la card unos pixels desde el top, y `hero-nav-band` con `margin-top: auto` + `margin-bottom: 0.5rem` para empujar el menú hacia abajo del viewport.
+  - Hero card 340px de ancho, gap reducido, padding 1.3rem y h1 con tamaño fluido 1.25rem + tracking 0.16em. Logo 64px.
+  - Hero-nav-bar pasa a grid 2×4 con bordes internos en lugar de border-radius global. Las cuatro pills de las esquinas reciben `border-top-left-radius`, `border-top-right-radius`, `border-bottom-left-radius` y `border-bottom-right-radius` para que el highlight respete la curva del contenedor cuando el usuario presiona una de ellas. `white-space: normal` deja que los labels largos envuelvan a 2 líneas.
+  - Panel: overlay con padding chico y `align-items: stretch`. Frame 100% / 97dvh con cap 880, border-radius 16. Toolbar y body con padding reducido y tipografía adaptada (title 1.05rem, body 0.98rem).
+  - Secciones: tipografía ajustada en cada bloque (history, statement-card, service-list, requirements, info, laws, contact). Botones de acción más compactos (laws 34px, contact 36px). Banners con `max-height` reducido (Historia 220, Servicios 180).
+- **Phone chico (≤430)**: micro-tier que reduce un punto más la tipografía donde se siente apretada en pantallas tipo Samsung S22+ (~412px lógicos).
+  - Panel body 0.92rem y title 1rem; statement-card / history-scroll / service-list span en 0.9rem; service-list strong en 0.78rem; info-highlight eyebrow 0.92rem y date 1.35rem; information-row 0.92/0.98rem.
+- **Phone chiquito (≤479)**: container-xl con padding lateral reducido, hero card 100% width, hero-nav-pill 52px / 0.72rem, laws-entry con thumb 56px.
+- Ya estaban resueltos en fases previas:
+  - `overflow-wrap: anywhere` en filas de información y emails de contactos.
+  - `flex-wrap: wrap` en filas de información para que valores largos puedan envolver.
+  - `-webkit-tap-highlight-color: transparent` en hero-nav-pill (definido fuera de la media query, aplica siempre).
