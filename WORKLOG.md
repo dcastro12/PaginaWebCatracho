@@ -173,3 +173,18 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - Acciones: `Preview` (abre en nueva pestaña con `target="_blank" rel="noreferrer"`) y `Descarga` (cuando hay `downloadHref`, usa el atributo `download` para forzar descarga). Botones con tamaño compacto (38px alto, 0.85rem) para que entren juntos en cards angostas.
 - Scroll interno con `scrollbar-gutter: stable` y `padding-right: 0.7rem` para separar el thumb del scrollbar.
 - `SiteShell.renderSection` agrega el `case 'leyes-y-otros'`.
+
+### 2026-04-24 — Sección Distancias
+
+- `DistanciasSection` con dos vistas según el ancho:
+  - Desktop (`d-none d-md-block`): tabla nativa Bootstrap (`table table-dark align-middle`) con columnas No., Desde, Hasta y Km. El header usa `position: sticky; top: 0` para mantenerse visible mientras scrolleamos.
+  - Mobile (`d-md-none`): lista compacta `distance-compact` con grid `44px / 1fr / 52px` por fila. La columna del medio combina el origen (strong) con la flecha y el destino (em) en dos líneas para no hacer scroll horizontal.
+- Búsqueda libre con `useState` + `useDeferredValue`, filtra sobre `id + from + to + km` case-insensitive. El input renderiza un placeholder con comillas tipográficas para sugerir el alcance.
+- Estado `activeId` para destacar una fila en mobile (toggle con click). En desktop se usa el resaltado nativo de la tabla.
+- Placeholder "Sin resultados." cuando la búsqueda no matchea ninguna fila.
+- Estilos:
+  - `distance-table` con header sticky, padding generoso y alineación numérica a la derecha en la última columna.
+  - `distance-compact__head` también sticky para que el encabezado de la lista mobile siga visible.
+  - `distance-compact__row` con borde sutil que vira a accent en hover/focus/`is-active`. El número en accent blue por contraste.
+  - Scroll vertical en ambas vistas con `scrollbar-gutter: stable`.
+- `SiteShell.renderSection` agrega el `case 'distancias'`.
