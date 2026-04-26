@@ -162,3 +162,14 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `information-groups` es flex 1 1 auto con `overflow-y: auto` y `scrollbar-gutter: stable`, así si en el futuro se suman más métricas (ej. otras ciudades), la card scrollea internamente sin romper el layout del modal.
 - `info-highlight__date` con clamp para escala fluida entre 1.7rem y 2.1rem según el viewport.
 - `SiteShell.renderSection` agrega el `case 'informacion'`.
+
+### 2026-04-24 — Sección Leyes & Otros
+
+- `LeyesSection` con dos áreas: toolbar (search + chips de filtro) y biblioteca scrolleable.
+- Search input con `useState` para el valor inmediato y `useDeferredValue` para el filtrado, así escribir rápido no bloquea el render del input mientras la lista se recompone.
+- Filtro por categoría: `publicationCategories` se mapea a `filter-chip` con `role="tab"` y `aria-selected`. Mapeo interno `categoryToKind` traduce "PDF/Imagen/Video/Enlace" al `kind` del dataset; `Todos` no filtra. Labels presentables vía `categoryLabels` (Imagen → Imágenes, Enlace → Enlaces).
+- Filtro por texto: case-insensitive sobre `title + summary + category`. Si no hay match, render del placeholder `laws-library__empty`.
+- Cada entry es un `laws-entry` con grid `80px / 1fr`: thumb a la izquierda y body con título + fecha + acciones. Si la publicación tiene `thumbnail` se renderiza la imagen, sino un placeholder con el `kind` en uppercase. La entry entera vira a accent border en hover/focus-within.
+- Acciones: `Preview` (abre en nueva pestaña con `target="_blank" rel="noreferrer"`) y `Descarga` (cuando hay `downloadHref`, usa el atributo `download` para forzar descarga). Botones con tamaño compacto (38px alto, 0.85rem) para que entren juntos en cards angostas.
+- Scroll interno con `scrollbar-gutter: stable` y `padding-right: 0.7rem` para separar el thumb del scrollbar.
+- `SiteShell.renderSection` agrega el `case 'leyes-y-otros'`.
