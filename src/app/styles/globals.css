@@ -455,6 +455,61 @@ img {
   line-height: 1.65;
 }
 
+/* ---------- Servicios ---------- */
+
+.content-image--banner {
+  width: 100%;
+  min-height: 320px;
+  max-height: 380px;
+  object-fit: cover;
+  object-position: center 58%;
+}
+
+.service-list-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  padding: 1rem 1rem 1.1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(14, 16, 20, 0.92), rgba(8, 10, 13, 0.98));
+}
+
+.service-list {
+  margin: 0;
+  padding: 0 0.6rem 0 0;
+  list-style: none;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.service-list__item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 14, 19, 0.9);
+  color: var(--cat-text);
+}
+
+.service-list__item strong {
+  font-family: var(--cat-font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.service-list__item span {
+  color: var(--cat-text-soft);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {

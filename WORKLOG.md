@@ -128,3 +128,14 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - El frame compact ya estaba activado desde `SiteShell` (`compact={activeId === 'mision-vision'}`), así que el modal aparece más bajo y angosto que el resto.
 - Tipografía con tildes (`Misión`, `Visión`) consistente con el resto del contenido.
 - `SiteShell.renderSection` agrega el `case 'mision-vision'` apuntando al nuevo componente.
+
+### 2026-04-24 — Sección Servicios
+
+- `ServiciosSection` con banner superior + lista descriptiva. Los items son `<li>` puros, no botones — la información está siempre visible y no hay interacción que justifique un toggle.
+- Banner alimentado por `servicios.jpg` (mostrador y ventanilla institucional). `object-position: center 58%` para que el encuadre muestre la ventanilla y los papeles informativos en lugar del ventilador del techo.
+- `.content-image--banner` con `min-height: 320px` y `max-height: 380px` en desktop. Las alturas responsive se ajustan en la fase de breakpoints.
+- `.service-list-card` con borde sutil + gradiente vertical, `flex: 1 1 auto` y `min-height: 0` para que la lista interna pueda scrollear si la cantidad de items crece.
+- `.service-list` con scroll vertical, `scrollbar-gutter: stable` y `padding-right: 0.6rem` para que el thumb no se pegue al texto.
+- `.service-list__item` con título en Montserrat uppercase + descripción en color soft. Borde sutil y fondo levemente más oscuro que la card que lo contiene.
+- `servicios.jpg` colocada en `src/assets/sections/`.
+- `SiteShell.renderSection` agrega el `case 'servicios'` apuntando a `ServiciosSection`.

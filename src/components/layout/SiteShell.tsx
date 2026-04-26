@@ -7,6 +7,7 @@ import { Hero } from './Hero';
 import { PanelHost } from '../panels/PanelHost';
 import { HistoriaSection } from '../sections/historia/HistoriaSection';
 import { MissionVisionSection } from '../sections/myv/MissionVisionSection';
+import { ServiciosSection } from '../sections/servicios/ServiciosSection';
 
 const legacyHashMap: Readonly<Record<string, SectionId>> = {
   myv: 'mision-vision',
@@ -22,6 +23,8 @@ function renderSection(sectionId: SectionId) {
       return <HistoriaSection />;
     case 'mision-vision':
       return <MissionVisionSection />;
+    case 'servicios':
+      return <ServiciosSection />;
     default:
       return (
         <section className="section-stack">
