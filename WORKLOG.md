@@ -202,3 +202,12 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - `.contact-entry__copy strong` y `span` con `overflow-wrap: anywhere` para que emails largos como `presidencia@catrachohn.com` puedan envolver sin desbordar la card.
   - Botón con tamaño compacto fijo (108px min-width × 40px min-height) para que los tres tipos de acción se vean iguales independiente del label.
 - `SiteShell.renderSection` agrega el `case 'contactenos'`. Con esto el switch cubre los 8 canonicals y el `default` queda como `null` (la unión de `SectionId` lo hace inalcanzable, pero TS lo exige).
+
+### 2026-04-24 — Breakpoints desktop, laptop y tablet
+
+- Tres bloques de media queries que afinan los tamaños del modal y de los elementos clave en cada rango:
+  - **Desktop amplio (≥1440)**: queda el default. Modal 1320×960, banner Servicios 320–380px, tipografía en su escala máxima.
+  - **Laptop mediano (992–1439)**: bloque `@media (min-width: 992px) and (max-width: 1439px)` con modal 1120×800 (90vw / 88dvh con cap), compact 720×560, panel body en 1rem y title en 1.2rem para que la tipografía no se sienta inflada en pantallas 1080p, banner Servicios 240–300px.
+  - **Tablet (≤1199)**: hero-nav-bar pasa a `repeat(4, 1fr)` con border-radius 22px (en lugar de 999px) para que las 8 pills se acomoden en 2 filas de 4.
+  - **Tablet (≤991)**: panel 94vw / 90dvh con cap 820. Hero card sin `min-height` impuesto. Requirements download grid colapsa a 1 columna. History layout pasa a 1 columna con `grid-template-rows: auto minmax(0, 1fr)` para que la imagen no se estire. Banner Historia con min-height 220 / max-height 260; banner Servicios con max-height 200.
+- El bloque mobile (≤767) y el micro-tier (≤430) se atacan en G.2.
