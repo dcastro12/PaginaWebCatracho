@@ -231,8 +231,26 @@ img {
   place-items: center;
   padding: 1rem;
   background: var(--cat-overlay);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  opacity: 0;
+  transition:
+    opacity 180ms ease,
+    backdrop-filter 0s linear,
+    -webkit-backdrop-filter 0s linear;
+}
+
+.panel-overlay.is-open {
+  opacity: 1;
+}
+
+.panel-overlay.has-blur {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  transition:
+    opacity 180ms ease,
+    backdrop-filter 260ms ease-out,
+    -webkit-backdrop-filter 260ms ease-out;
 }
 
 .panel-frame {
@@ -246,6 +264,18 @@ img {
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: linear-gradient(180deg, rgba(11, 13, 16, 0.95), rgba(5, 6, 8, 0.96));
   box-shadow: var(--cat-shadow);
+  contain: layout paint;
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel-frame.is-open {
+  opacity: 1;
+  transform: scale(1);
+  will-change: opacity, transform;
 }
 
 .panel-frame--compact {
@@ -257,6 +287,17 @@ img {
   justify-self: center;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .panel-overlay,
+  .panel-frame {
+    transition: none;
+  }
+
+  .panel-frame {
+    transform: none;
+  }
+}
+
 .panel-frame__toolbar {
   display: flex;
   justify-content: space-between;
@@ -264,6 +305,7 @@ img {
   gap: 1rem;
   padding: 1rem 1.35rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
 
 .panel-frame__title {
   margin: 0;
@@ -307,6 +349,15 @@ img {
 
 .panel-frame__body--locked {
   overflow: hidden;
+}
+
+.section-stack {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+  contain: layout paint;
 }
 
 /* ---------- Footer ---------- */

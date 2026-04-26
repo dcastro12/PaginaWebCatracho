@@ -95,3 +95,17 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - `.panel-close` con borde de 2px que vira a accent en hover/focus.
   - `.panel-frame__body` con `flex: 1 1 auto`, `min-height: 0` (para que el scroll interno respete la altura del frame) y la variante `--locked` con `overflow: hidden` para que las secciones manejen su propio scroll.
 - `SiteShell` ahora monta `PanelHost` con `title`, `isOpen` y `onClose` derivados del hook, y pasa `compact={activeId === 'mision-vision'}` para que sólo MyV use el frame compacto. Mientras las secciones reales no existen, `renderSection` devuelve un placeholder temporal que se reemplaza en la fase F.
+
+### 2026-04-24 — Animación pop con backdrop diferido
+
+- `PanelHost` extendido con tres estados: `mounted` (controla la presencia en el DOM), `visible` (dispara la animación de entrada) y `hasBlur` (activa el `backdrop-filter` después de la apertura).
+- Secuencia de apertura: `setMounted(true)` → `requestAnimationFrame(() => setVisible(true))` para que la transition arranque desde la opacidad 0 → `setTimeout(() => setHasBlur(true), 240)` para que el blur entre en escena cuando la animación de scale ya casi terminó.
+- Secuencia de cierre: `setVisible(false)` y `setHasBlur(false)` instantáneo (el blur se quita como step-change para que el cierre no tenga que recomputar el filter por frame), y `setMounted(false)` 200 ms después para dar tiempo al fade-out.
+- Foco al frame movido al efecto que escucha `visible`, así no se intenta enfocar antes de que el nodo esté pintado.
+- CSS con transición asimétrica para `backdrop-filter`:
+  - Estado base: `backdrop-filter: blur(0)` con transition de 0s linear (cierre instantáneo).
+  - Variante `.has-blur`: `backdrop-filter: blur(10px)` con transition de 260ms ease-out (apertura suave).
+  - Esto evita el costo de animar el blur de subida durante el fade de la opacidad.
+- `.panel-frame` con `opacity: 0` + `transform: scale(0.94)` por defecto, y `.panel-frame.is-open` lleva opacity 1 + scale 1 + `will-change: opacity, transform` aplicado solo mientras está abierto.
+- `contain: layout paint` en `.panel-frame` y `.section-stack` para aislar el cálculo de layout y paint del resto del documento.
+- Bloque `@media (prefers-reduced-motion: reduce)` que desactiva todas las transiciones del panel y deja `transform: none` para usuarios que pidan menos movimiento.
