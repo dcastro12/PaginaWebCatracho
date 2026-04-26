@@ -119,3 +119,12 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `.history-layout__copy` con borde sutil y gradiente vertical para diferenciarse visualmente de la imagen.
 - `historia.jpg` colocada en `src/assets/sections/` para que Vite la fingerprint y la incluya en el bundle.
 - `SiteShell.renderSection` ahora hace switch sobre `SectionId` y enchufa `HistoriaSection` para `historia`. El resto de los ids siguen mostrando el placeholder hasta que aparezcan en las próximas tarjetas.
+
+### 2026-04-24 — Sección Misión & Visión
+
+- `MissionVisionSection` renderiza dos `statement-card` (Misión y Visión) consumiendo `missionVision` del editorial. Cada card tiene un eyebrow `statement-card__title` en uppercase + el texto largo abajo.
+- Borde superior de 3px en `var(--cat-accent)` para marcar visualmente cada bloque, gradiente vertical sutil de fondo y `box-shadow: inset` para reforzar el contorno sin sumar shadow externo.
+- `mission-vision-stack` como flex column con `flex: 0 1 auto` y `max-height: 100%`: las cards toman el alto natural de su contenido y el stack se queda dentro del modal sin estirarse. Si el contenido crece, hay scroll interno con `scrollbar-gutter: stable` y `overscroll-behavior-y: contain`.
+- El frame compact ya estaba activado desde `SiteShell` (`compact={activeId === 'mision-vision'}`), así que el modal aparece más bajo y angosto que el resto.
+- Tipografía con tildes (`Misión`, `Visión`) consistente con el resto del contenido.
+- `SiteShell.renderSection` agrega el `case 'mision-vision'` apuntando al nuevo componente.
