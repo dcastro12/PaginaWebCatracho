@@ -273,3 +273,16 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `buildFile()` arma el TypeScript completo del dataset preservando la forma exacta (imports, tipo `InfoMetric`, helpers con tilde "Por galón"). Si la salida es idéntica al archivo actual, no reescribe.
 - Cualquier excepción (HTTP no-OK, selector vacío, valor no numérico) propaga al `main().catch` y sale con `process.exit(1)`. La GitHub Action en I.2 va a interpretar ese exit code como fallo y avisar.
 - Script `update:precios` registrado en `package.json`.
+
+### 2026-04-26 — Cron diario vía GitHub Actions
+
+- Workflow `.github/workflows/update-precios.yml` con dos triggers:
+  - `schedule: cron: '0 13 * * *'` — corre todos los días a las 13:00 UTC, que en horario de Honduras (UTC-6) es 07:00.
+  - `workflow_dispatch` — permite dispararlo manualmente desde la pestaña Actions del repo. Útil para validar selectores o forzar una actualización inmediata.
+- `permissions: contents: write` para que el `GITHUB_TOKEN` por defecto pueda hacer commit + push de cambios al repo.
+- Steps: checkout, setup-node 20 con cache de npm, `npm ci`, `node scripts/update-precios.mjs`, y un step final que detecta diff sobre `src/content/datasets/information.ts` con `git status --porcelain` y, si hay cambio, configura un identidad `catracho-bot` y hace commit + push. Si no hay diff, imprime "Sin cambios." y sale 0.
+- El conventional commit del bot es `chore(precios): actualización automática diaria` para dejar rastro claro en el historial sin mezclarse con el trabajo manual.
+- Pendiente del lado de GitHub (manual una sola vez):
+  1. **Settings → Actions → General → Workflow permissions** del repo: cambiar a "Read and write permissions" para que el GITHUB_TOKEN pueda pushear.
+  2. **Validar selectores con un dispatch manual** desde la pestaña Actions antes de confiar en el cron diario. Si BCH o SEFIN devuelven HTML distinto al esperado, el script sale con código 1 y el log de Actions muestra qué selector se rompió.
+- Pendiente del lado del host: cómo se entera Plesk de los cambios para servirlos en producción se decide en la fase J según la opción que soporte el subscription (Git Deployment integrado o GitHub Actions con SFTP).
