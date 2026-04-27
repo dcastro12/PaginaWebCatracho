@@ -386,3 +386,12 @@ Pendiente (fuera del scope técnico):
 - Limpieza opcional de carpetas legacy 2018 en `httpdocs/` (`demo-files/`, `icomoon/`, `picture_library/`, `jic.zip`) — no rompen nada, solo ocupan disco.
 - Asignar responsables (técnico + editorial) en la sección Responsables del README.
 - Compartir la URL pública con el equipo de CATRACHO.
+
+### 2026-04-27 — Ajustes editoriales solicitados por el cliente
+
+Después del primer review con el cliente, se aprobaron tres cambios:
+
+- **Texto justificado en Historia y Misión & Visión.** Se agrega `text-align: justify` a `.history-scroll p` (línea 406 de `globals.css`) y a `.statement-card p` (línea 451). Se acompaña con `hyphens: auto` + `-webkit-hyphens: auto` para que el navegador hipenenice palabras largas y se reduzcan los "ríos" de espacio entre palabras — el `<html>` ya tiene `lang="es-HN"`, así que la hipenación usa diccionario español. Las media queries que repiten estos selectores no override `text-align`, así que el cambio cascade a todos los breakpoints.
+- **Eliminación de la imagen banner en Servicios.** Se borra el `<img className="content-image content-image--banner">` y el import de `serviciosImage` en `ServiciosSection.tsx`. El asset `src/assets/sections/servicios.jpg` (180 KB) queda huérfano y se elimina del repo. La sección queda con la `<ul>` de servicios como único contenido.
+
+`npx tsc -b` limpio después de los cambios. Pendiente: hacer push y un nuevo deploy desde Plesk para que se apliquen en producción.

@@ -408,6 +408,9 @@ img {
   color: var(--cat-text-soft);
   font-size: 1.05rem;
   line-height: 1.65;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 
 .history-lead {
@@ -453,6 +456,9 @@ img {
   color: var(--cat-text-soft);
   font-size: 1.05rem;
   line-height: 1.65;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 
 /* ---------- Servicios ---------- */
