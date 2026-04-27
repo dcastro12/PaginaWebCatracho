@@ -350,3 +350,39 @@ Primer deploy ejecutado desde Plesk apuntando al branch `production` (creado por
 Validado: el sitio carga, los modales abren, los assets fingerprint resuelven con el cache header largo, y `carnet/` + `images/` siguen accesibles via URL directa.
 
 `Docs/Deploy_Plesk.md` actualizado con sección 10 "Troubleshooting" que documenta este síntoma específico para que no muerda en futuros despliegues a hosts shared.
+
+### 2026-04-27 — Documentación final y cierre del proyecto (K.1)
+
+Cierre formal de la fase de implementación. Consolidación de toda la documentación necesaria para que cualquiera que tome el proyecto entienda el estado, la arquitectura y los procedimientos operativos.
+
+- **`README.md` reescrito** con tres capas de información: institucional (qué es CATRACHO, URL pública), técnica (stack, comandos, estructura del repo) y operativa (cómo editar contenido, cómo correr scripts de mantenimiento, qué hace el cron de precios y qué hacer si falla, deploy automático). Incluye sección "Responsables" con placeholder para que la organización asigne dueños técnico y editorial.
+
+- **`Docs/Arquitectura.md` creado** como guía técnica para developers. Cubre: el layering Shell → Panel → Section, la separación estricta UI/contenido, el hash sync con mapa de redirects legacy, la animación con backdrop-filter diferido (60fps), el dual backdrop responsive, el pipeline de optimización de assets, el sistema de estilos (tokens + Bootstrap como soporte), y el flujo de datos dinámicos del cron. Documenta las decisiones técnicas que importan para mantener el proyecto sin desviarse de las reglas del diseño.
+
+- **`Docs/Deploy_Plesk.md`** ya consolidado en la entrada anterior. No requiere cambios adicionales.
+
+- **`WORKLOG.md`** revisado: las entradas cronológicas cubren todas las fases A-J + el deploy final + esta entrada de cierre. Sin huecos, sin duplicados.
+
+#### Métricas finales del proyecto
+
+| Métrica | Valor |
+|---|---|
+| Commits totales en `main` | 30 |
+| Tamaño del bundle (`dist/`) | 15 MB total (incluye media y documents) |
+| Bundle JS principal | 230 KB sin gzip |
+| Bundle CSS principal | 256 KB sin gzip |
+| Imágenes optimizadas | de ~18.5 MB a ~7 MB tras `optimize:assets` |
+| Workflows automáticos | 2 (`update-precios.yml` cron diario + `deploy.yml` en cada push a `main`) |
+| Hooks reutilizables extraídos | 4 (`useHashPanelSync`, `useBodyScrollLock`, `useEscapeKey`, `useDocumentTitle`) |
+| Datasets de contenido | 7 + 1 editorial + 1 config |
+| Secciones canónicas | 8 |
+| Redirects de hashes legacy | 5 (`myv`, `info`, `noticias`, `distancia`, `contactos`) |
+
+Pendiente (fuera del scope técnico):
+
+- Asignar el cert "CATRACHO" al dominio en Plesk → Configuración de hosting → Seguridad.
+- Cambiar Cloudflare SSL de **Flexible** a **Full (strict)** después de asignar el cert.
+- Pasar Plesk Git de modo Manual a Automatic una vez validado el ciclo end-to-end.
+- Limpieza opcional de carpetas legacy 2018 en `httpdocs/` (`demo-files/`, `icomoon/`, `picture_library/`, `jic.zip`) — no rompen nada, solo ocupan disco.
+- Asignar responsables (técnico + editorial) en la sección Responsables del README.
+- Compartir la URL pública con el equipo de CATRACHO.
