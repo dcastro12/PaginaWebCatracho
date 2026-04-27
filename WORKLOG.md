@@ -298,3 +298,28 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - `readPrevious()` parsea el `information.ts` actual con regex y devuelve los valores existentes. Si Ficohsa falla pero La Prensa sí, queda Compra/Venta del archivo anterior y el resto se actualiza. Y al revés. Sólo si AMBAS fallan el script sale con `process.exit(1)` y la Action notifica.
 - Logs claros: imprime URL del artículo descubierto, valores parseados y el `source` de cada métrica (`ficohsa | laprensa | previous`).
 - Validación local con `--dry-run` contra los sitios reales: dólar Compra L 26.4600 / Venta L 26.5923, diésel Tegucigalpa L 141.38 / SPS L 136.35. Todo OK.
+
+### 2026-04-27 — Configuración para deploy en Plesk (Windows + IIS, Plan B activado)
+
+Inspección del subscription en Plesk: el host es Windows (drive `G:\PleskVhosts\catrachohn.com\`), corre IIS y **no tiene Node.js disponible** en la sección Herramientas de Desarrollo (sólo PHP 8.0.30 obsoleto, ASP.NET, Git y Composer). El build no puede correr en el server, así que adopto el Plan B: build en GitHub Actions, push del `dist/` a un branch dedicado, Plesk solo hace `git pull` + copia.
+
+- `.github/workflows/deploy.yml` — workflow nuevo. Trigger: `push` a `main` + `workflow_dispatch`. Pasos: `actions/checkout@v5` + `actions/setup-node@v5` (Node 20), `npm ci`, `npm run build`, y un step final que entra a `dist/`, inicializa un repo git efímero y hace `git push --force` a un branch llamado `production`. Cada deploy reescribe `production` completo: el branch siempre tiene **solo el último build** y nada más, sin historia. Auth con `${{ secrets.GITHUB_TOKEN }}` que GitHub provee automáticamente para `permissions.contents: write`.
+
+- `public/web.config` con tres bloques (queda en `public/` para que Vite lo copie tal cual a `dist/`):
+  - **`<rewrite>`**: regla "SPA fallback" que reescribe cualquier request cuyo path no coincide con archivo o directorio existente hacia `/index.html`. Habilita deep-links (`/#historia`, `/#mision-vision`, etc.) y recargas de URLs profundas sin 404.
+  - **`<staticContent>`**: mimeMaps explícitos para `webp`, `woff` y `woff2`. `clientCache` con `cacheControlMaxAge` de 1 año porque Vite fingerprintea cada asset.
+  - **`<httpProtocol>`**: headers básicos de seguridad (`X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`). Sin CSP estricto porque el sitio usa scripts inline mínimos del bundler.
+
+- `Docs/Deploy_Plesk.md` reescrita para reflejar la realidad del host:
+  1. Backup completo de `httpdocs/` antes de tocar nada.
+  2. Verificación de SSL (cert "CATRACHO" subido pero sin asignar al dominio) y DNS (proxiado por Cloudflare en modo **Flexible** — habrá que pasarlo a Full strict post-deploy).
+  3. Plesk Git apunta al branch **`production`** (no a `main`).
+  4. Additional deploy actions usa **`robocopy`** con `/MIR /XD ... /XF ...` para sincronizar el repo a `httpdocs/` excluyendo carpetas dinámicas. Cierra con `if %ERRORLEVEL% LEQ 7 exit 0` porque robocopy devuelve 0-7 como éxitos pero Plesk los interpreta como fallo si no se traducen.
+  5. Lista blanca de cosas que NUNCA se borran en deploys:
+     - `httpdocs\carnet\` — 930 JPGs nombrados por DNI (la app de la oficina los sube).
+     - `httpdocs\images\` — 63 archivos: PDFs de decretos, comunicados históricos, carpetas tipo "Diciembre 2024". Activa.
+     - `httpdocs\.user.ini` — config PHP que gestiona Plesk solo.
+  6. Plan SSL post-deploy: asignar cert en Plesk + cambiar Cloudflare a Full (strict).
+  7. Smoke test cross-device incluye verificar que `https://catrachohn.com/carnet/<DNI>.jpg` y `https://catrachohn.com/images/<archivo>.pdf` siguen accesibles.
+
+Hash legacy redirects: NO necesitan reglas de servidor. Como las rutas legacy (`#myv`, `#info`, `#noticias`, `#distancia`, `#contactos`) son hashes (client-side), el server siempre ve `/index.html` y `useHashPanelSync.legacyMap` ya hace el rewrite a los canónicos vía `history.replaceState`.
