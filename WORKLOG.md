@@ -228,3 +228,13 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - `overflow-wrap: anywhere` en filas de información y emails de contactos.
   - `flex-wrap: wrap` en filas de información para que valores largos puedan envolver.
   - `-webkit-tap-highlight-color: transparent` en hero-nav-pill (definido fuera de la media query, aplica siempre).
+
+### 2026-04-26 — Hero responsive y crop mobile
+
+- `hero-bg.jpg` (4791×3194, panorámica) colocada en `src/assets/hero/`. Importada por `SiteShell` para el backdrop desktop.
+- `sharp` agregado como devDependency para procesamiento de imágenes en pipeline local.
+- Script `scripts/crop-hero-mobile.mjs`: lee `hero-bg.jpg`, calcula el cuadrado más grande centrado (3194×3194), redimensiona a 1600×1600 con `withoutEnlargement: true` y exporta como `jpeg quality 82 progressive mozjpeg` a `src/assets/hero/hero-bg-mobile.jpg`. Una sola corrida deja la versión mobile lista.
+- `SiteShell` ahora inyecta `backgroundImage` inline en cada backdrop: el desktop usa `hero-bg.jpg`, el mobile usa `hero-bg-mobile.jpg`. Cada uno con un `linear-gradient(180deg, ...)` superpuesto para oscurecer el cielo de la foto y mantener legibilidad del overlay.
+- El switch entre los dos backdrops ya estaba configurado en G.2 vía media queries: `--desktop` se oculta y `--mobile` se muestra cuando el viewport baja de 768px.
+- `object-position` por sección ya estaba aplicado: Historia con `10% center` (F.1) para enfocar las tres personas, Servicios con `center 58%` (F.3) para mostrar la ventanilla.
+- El resto de assets ya se habían migrado durante el desarrollo: logo brand en D.2, thumbnails en C.3, PDFs y video en C.3, imágenes de Historia y Servicios en F.1 y F.3.

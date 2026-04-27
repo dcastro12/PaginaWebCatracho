@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { sectionLinks } from '../../content/config/site';
 import type { SectionId } from '../../types/content';
 import { useHashPanelSync } from '../../hooks/useHashPanelSync';
+import heroBg from '../../assets/hero/hero-bg.jpg';
+import heroBgMobile from '../../assets/hero/hero-bg-mobile.jpg';
 import { Footer } from './Footer';
 import { Hero } from './Hero';
 import { PanelHost } from '../panels/PanelHost';
@@ -53,8 +55,14 @@ export function SiteShell() {
 
   return (
     <div className="site-root">
-      <div className="site-backdrop site-backdrop--desktop" />
-      <div className="site-backdrop site-backdrop--mobile" />
+      <div
+        className="site-backdrop site-backdrop--desktop"
+        style={{ backgroundImage: `linear-gradient(180deg, rgba(5, 7, 10, 0.22), rgba(5, 7, 10, 0.55)), url(${heroBg})` }}
+      />
+      <div
+        className="site-backdrop site-backdrop--mobile"
+        style={{ backgroundImage: `linear-gradient(180deg, rgba(5, 7, 10, 0.22), rgba(5, 7, 10, 0.55)), url(${heroBgMobile})` }}
+      />
       <div className="site-vignette" />
       <div className="site-gradient site-gradient--one" />
       <div className="site-gradient site-gradient--two" />
