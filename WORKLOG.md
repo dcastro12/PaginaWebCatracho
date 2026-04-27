@@ -238,3 +238,22 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
 - El switch entre los dos backdrops ya estaba configurado en G.2 vía media queries: `--desktop` se oculta y `--mobile` se muestra cuando el viewport baja de 768px.
 - `object-position` por sección ya estaba aplicado: Historia con `10% center` (F.1) para enfocar las tres personas, Servicios con `center 58%` (F.3) para mostrar la ventanilla.
 - El resto de assets ya se habían migrado durante el desarrollo: logo brand en D.2, thumbnails en C.3, PDFs y video en C.3, imágenes de Historia y Servicios en F.1 y F.3.
+
+### 2026-04-26 — Optimización automática de imágenes y video
+
+- `ffmpeg-static` agregado como devDependency. `sharp` ya estaba desde H.1.
+- Script `scripts/optimize-assets.mjs` que recorre `src/assets/**/*.{jpg,jpeg,png}` y `public/media/**/*.mp4`:
+  - Imagen JPG/JPEG: pipeline sharp con `rotate()` + `resize({ width: 1920, withoutEnlargement: true })` + `jpeg({ quality: 78, progressive: true, mozjpeg: true })`.
+  - Imagen PNG: igual pero con `png({ compressionLevel: 9, palette: true })`.
+  - Video MP4: ffmpeg con `libx264 preset slow CRF 28`, `pix_fmt yuv420p`, `movflags +faststart`, `aac 96k`.
+  - Sólo sobrescribe el original si el resultado pesa menos. Loguea por archivo con bytes antes/después.
+- Script `optimize:assets` registrado en `package.json`.
+- Primera corrida deja los binarios mucho más livianos (totales `du -b`):
+  - `carretera-panamericana-bloqueada.mp4`: 13.54 MB → 4.79 MB (-65%).
+  - `precios-navieros.jpeg`: 1.45 MB → 624 KB (-57%).
+  - `hero-bg.jpg`: 1.28 MB → 191 KB (-85%).
+  - `servicios.jpg`: 1.10 MB → 184 KB (-83%).
+  - `catracho-mark.png`: 481 KB → 184 KB (-62%).
+  - 7 thumbnails restantes: reducciones entre -5% y -24%.
+  - Total bundle de assets: ~18.5 MB → ~7.0 MB (-62%).
+- `hero-bg-mobile.jpg` también cae de 250 KB a 231 KB porque la pipeline lo recorre, aunque venía de `crop-hero-mobile.mjs` ya bastante optimizado.
