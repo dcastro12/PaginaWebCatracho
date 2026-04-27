@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 /**
  * Actualiza src/content/datasets/information.ts con los valores vigentes de
- * tipo de cambio (BCH) y precios de diésel (SEFIN).
+ * tipo de cambio (Ficohsa) y precios de diésel (La Prensa, vía artículo
+ * más reciente sobre combustibles publicado por la Secretaría de Energía).
  *
  * Uso:
  *   node scripts/update-precios.mjs            (escribe el archivo)
  *   node scripts/update-precios.mjs --dry-run  (solo imprime lo que haría)
  *
- * Si cualquiera de los selectores falla, el script sale con código != 0 y
- * NO toca el archivo. Eso deja que la Action de GitHub avise por fallo.
+ * Cada fuente se intenta de forma independiente. Si una falla pero la otra
+ * funciona, los valores fallidos quedan con su último valor conocido y la
+ * fecha sí se actualiza. Si AMBAS fallan, el script sale con código != 0
+ * y no toca el archivo.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -19,18 +22,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const targetFile = path.resolve(__dirname, '..', 'src/content/datasets/information.ts');
 const dryRun = process.argv.includes('--dry-run');
 
-// Los selectores se declaran acá para que sean ajustables sin tocar la lógica.
-// Si BCH o SEFIN cambian su markup, esta es la única zona que hay que revisar.
 const SOURCES = {
-  bch: {
-    url: 'https://www.bch.hn/tipo-de-cambio',
-    pickBuy: ($) => $('table').first().find('td').eq(1).text().trim(),
-    pickSell: ($) => $('table').first().find('td').eq(3).text().trim(),
+  ficohsa: {
+    url: 'https://www.ficohsa.hn/tasas-de-cambio',
   },
-  sefin: {
-    url: 'https://www.sefin.gob.hn/precios-de-combustibles/',
-    pickSps: ($) => $('td:contains("San Pedro Sula") + td:contains("Diesel") + td').first().text().trim(),
-    pickTegus: ($) => $('td:contains("Tegucigalpa") + td:contains("Diesel") + td').first().text().trim(),
+  laprensa: {
+    section: 'https://www.laprensa.hn/honduras',
+    articleSlug: /\/(?:honduras|portada|economia)\/precios-combustibles-[a-z0-9-]+-[A-Z]{1,4}[0-9]+/,
+    spsMarker: /precios de los combustibles en san pedro sula/i,
   },
 };
 
@@ -61,20 +60,67 @@ function today() {
   return `${dd}/${mm}/${yy}`;
 }
 
-async function scrapeBch() {
-  const html = await fetchHtml(SOURCES.bch.url);
+async function readPrevious() {
+  const content = await readFile(targetFile, 'utf8');
+  const grab = (label) => {
+    const re = new RegExp(`label:\\s*'${label}',\\s*\\n?\\s*value:\\s*'L\\s*([\\d.]+)'`);
+    const m = content.match(re);
+    if (!m) throw new Error(`No pude leer valor previo de "${label}"`);
+    return parseFloat(m[1]);
+  };
+  return {
+    dollar: { buy: grab('Compra'), sell: grab('Venta') },
+    diesel: { sps: grab('San Pedro Sula'), tegus: grab('Tegucigalpa') },
+  };
+}
+
+async function scrapeFicohsa() {
+  const html = await fetchHtml(SOURCES.ficohsa.url);
   const $ = load(html);
-  const buy = parseNumber(SOURCES.bch.pickBuy($));
-  const sell = parseNumber(SOURCES.bch.pickSell($));
+  const $dolar = $('.tipo-cambio__currency')
+    .filter((_, el) => $(el).find('.tipo-cambio__currency-title').text().trim().toLowerCase().startsWith('dólar'))
+    .first();
+  if ($dolar.length === 0) throw new Error('Ficohsa: bloque del dólar no encontrado.');
+  const buyText = $dolar.find('.tipo-cambio__rate-line').eq(0).find('.tipo-cambio__value').text().trim();
+  const sellText = $dolar.find('.tipo-cambio__rate-line').eq(1).find('.tipo-cambio__value').text().trim();
+  const buy = parseNumber(buyText);
+  const sell = parseNumber(sellText);
   return { buy, sell };
 }
 
-async function scrapeSefin() {
-  const html = await fetchHtml(SOURCES.sefin.url);
-  const $ = load(html);
-  const sps = parseNumber(SOURCES.sefin.pickSps($));
-  const tegus = parseNumber(SOURCES.sefin.pickTegus($));
-  return { sps, tegus };
+function extractDieselPrice(text, label) {
+  const sentences = text.split(/\.\s+|\n+/);
+  for (const s of sentences) {
+    if (!/di[eé]sel/i.test(s)) continue;
+    const numbers = (s.match(/\d{1,3}\.\d{2}/g) || []).map((x) => parseFloat(x));
+    const candidates = numbers.filter((n) => n > 30 && n < 500);
+    if (candidates.length > 0) {
+      return candidates[candidates.length - 1];
+    }
+  }
+  throw new Error(`La Prensa: precio de diésel para "${label}" no encontrado.`);
+}
+
+async function scrapeLaPrensa() {
+  const sectionHtml = await fetchHtml(SOURCES.laprensa.section);
+  const m = sectionHtml.match(SOURCES.laprensa.articleSlug);
+  if (!m) throw new Error('La Prensa: artículo de precios no encontrado en /honduras.');
+  const articleUrl = `https://www.laprensa.hn${m[0]}`;
+  console.log('La Prensa artículo:', articleUrl);
+
+  const articleHtml = await fetchHtml(articleUrl);
+  const $ = load(articleHtml);
+
+  const items = $('.paragraph p, h2.intertitle, h2').toArray();
+  const splitIndex = items.findIndex((el) => SOURCES.laprensa.spsMarker.test($(el).text()));
+  if (splitIndex === -1) throw new Error('La Prensa: separador "Precios ... San Pedro Sula" no encontrado.');
+
+  const tegusText = items.slice(0, splitIndex).map((el) => $(el).text()).join(' ');
+  const spsText = items.slice(splitIndex).map((el) => $(el).text()).join(' ');
+
+  const tegus = extractDieselPrice(tegusText, 'Tegucigalpa');
+  const sps = extractDieselPrice(spsText, 'San Pedro Sula');
+  return { tegus, sps };
 }
 
 function buildFile({ updatedAt, dollar, diesel }) {
@@ -113,11 +159,35 @@ export const dieselMetrics: InfoMetric[] = [
 }
 
 async function main() {
-  const [dollar, diesel] = await Promise.all([scrapeBch(), scrapeSefin()]);
+  const previous = await readPrevious();
+
+  let dollar = previous.dollar;
+  let dollarSource = 'previous';
+  try {
+    dollar = await scrapeFicohsa();
+    dollarSource = 'ficohsa';
+  } catch (err) {
+    console.warn('Ficohsa falló:', err.message);
+  }
+
+  let diesel = previous.diesel;
+  let dieselSource = 'previous';
+  try {
+    diesel = await scrapeLaPrensa();
+    dieselSource = 'laprensa';
+  } catch (err) {
+    console.warn('La Prensa falló:', err.message);
+  }
+
+  if (dollarSource === 'previous' && dieselSource === 'previous') {
+    throw new Error('Ambas fuentes fallaron. Sin actualización.');
+  }
+
   const updatedAt = today();
   console.log('updatedAt', updatedAt);
-  console.log('dollar', dollar);
-  console.log('diesel', diesel);
+  console.log('dollar', dollar, `(source: ${dollarSource})`);
+  console.log('diesel', diesel, `(source: ${dieselSource})`);
+
   const next = buildFile({ updatedAt, dollar, diesel });
   if (dryRun) {
     console.log('--- dry run: archivo propuesto ---');

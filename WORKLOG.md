@@ -286,3 +286,15 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   1. **Settings → Actions → General → Workflow permissions** del repo: cambiar a "Read and write permissions" para que el GITHUB_TOKEN pueda pushear.
   2. **Validar selectores con un dispatch manual** desde la pestaña Actions antes de confiar en el cron diario. Si BCH o SEFIN devuelven HTML distinto al esperado, el script sale con código 1 y el log de Actions muestra qué selector se rompió.
 - Pendiente del lado del host: cómo se entera Plesk de los cambios para servirlos en producción se decide en la fase J según la opción que soporte el subscription (Git Deployment integrado o GitHub Actions con SFTP).
+
+### 2026-04-27 — Scraper reescrito: Ficohsa + La Prensa
+
+- Las URLs originales (BCH `/tipo-de-cambio` y SEFIN `/precios-de-combustibles/`) no eran usables: BCH es SPA con datos AJAX y SEFIN ni siquiera responde 200. La fuente oficial de combustibles es SEN (`sen.hn`) pero publica los precios como imágenes, no como texto.
+- Pipeline nuevo dividido por fuente:
+  - **Dólar (Ficohsa)**: HTML estático con clases CSS estables (`.tipo-cambio__currency`, `.tipo-cambio__currency-title`, `.tipo-cambio__rate-line`, `.tipo-cambio__value`). Filtra el bloque cuyo título arranca con "Dólar" y toma Compra/Venta de las dos primeras `rate-line`.
+  - **Diésel (La Prensa, en dos pasos)**:
+    1. Fetch de la sección `https://www.laprensa.hn/honduras` y regex `\/(?:honduras|portada|economia)\/precios-combustibles-[a-z0-9-]+-[A-Z]{1,4}[0-9]+` para descubrir la URL del artículo más reciente. Eso resuelve que la URL cambia cada lunes.
+    2. Fetch del artículo, parseo con cheerio: divide los párrafos por el `<h2>` cuyo texto contiene "Precios de los combustibles en San Pedro Sula" — antes = Tegucigalpa, después = SPS. En cada bloque busca la primera oración con "diésel" y extrae el último número con formato `\d{1,3}\.\d{2}` que esté entre 30 y 500 (descarta incrementos chicos como "1.29 lempiras" y se queda con el precio final como "L141.38").
+- `readPrevious()` parsea el `information.ts` actual con regex y devuelve los valores existentes. Si Ficohsa falla pero La Prensa sí, queda Compra/Venta del archivo anterior y el resto se actualiza. Y al revés. Sólo si AMBAS fallan el script sale con `process.exit(1)` y la Action notifica.
+- Logs claros: imprime URL del artículo descubierto, valores parseados y el `source` de cada métrica (`ficohsa | laprensa | previous`).
+- Validación local con `--dry-run` contra los sitios reales: dólar Compra L 26.4600 / Venta L 26.5923, diésel Tegucigalpa L 141.38 / SPS L 136.35. Todo OK.
