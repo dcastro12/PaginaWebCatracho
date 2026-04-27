@@ -257,3 +257,19 @@ Registrar, en orden cronológico, las decisiones, cambios y verificaciones hecha
   - 7 thumbnails restantes: reducciones entre -5% y -24%.
   - Total bundle de assets: ~18.5 MB → ~7.0 MB (-62%).
 - `hero-bg-mobile.jpg` también cae de 250 KB a 231 KB porque la pipeline lo recorre, aunque venía de `crop-hero-mobile.mjs` ya bastante optimizado.
+
+### 2026-04-26 — Scraper de dólar y diésel
+
+- `cheerio` agregado como devDependency.
+- Script `scripts/update-precios.mjs` con dos modos:
+  - `node scripts/update-precios.mjs` reescribe `src/content/datasets/information.ts` si cambió algún valor.
+  - `node scripts/update-precios.mjs --dry-run` imprime el archivo propuesto sin tocar disco. Útil para revisar selectores antes de pushear.
+- Constante `SOURCES` agrupa las URLs y los selectores CSS de BCH (`pickBuy`, `pickSell` sobre la primera tabla de tipo de cambio) y de SEFIN (`pickSps`, `pickTegus` sobre las celdas de Diesel filtradas por ciudad). Si BCH o SEFIN cambian su markup, esta es la única zona que hay que tocar.
+- Pipeline:
+  - `fetch` con User-Agent identificable hacia las dos fuentes en paralelo (`Promise.all`).
+  - Cheerio `load(html)` para parsear, selector dispara `parseNumber` que limpia caracteres no numéricos, normaliza separadores y devuelve un `Number` finito o tira excepción.
+  - `formatLempira(n, decimals)` produce el formato `L X.XXXX` (4 decimales para dólar, 2 para diésel) consistente con el dataset.
+  - `today()` construye `DD/MM/YYYY` para `informationSnapshot.updatedAt`.
+- `buildFile()` arma el TypeScript completo del dataset preservando la forma exacta (imports, tipo `InfoMetric`, helpers con tilde "Por galón"). Si la salida es idéntica al archivo actual, no reescribe.
+- Cualquier excepción (HTTP no-OK, selector vacío, valor no numérico) propaga al `main().catch` y sale con `process.exit(1)`. La GitHub Action en I.2 va a interpretar ese exit code como fallo y avisar.
+- Script `update:precios` registrado en `package.json`.
