@@ -142,3 +142,33 @@ Probar desde varios dispositivos en redes distintas (datos moviles + Wi-Fi, no l
 - README -> seccion Mantenimiento: agregar el procedimiento corto ("para forzar un deploy: push a main, esperar el Action, esperar el pull de Plesk").
 - Comunicar al equipo de CATRACHO la URL del nuevo sitio.
 - Mover las tarjetas J.1 y J.2 a Done en Trello.
+
+## 10. Troubleshooting
+
+### Sintoma: 500 "The page cannot be displayed because an internal server error has occurred."
+
+**Causa probable**: el `web.config` tiene `<mimeMap>` para extensiones que ya estan definidas a nivel server por GoDaddy/Plesk. IIS rechaza con 500.19 "Cannot add duplicate collection entry".
+
+**Diagnostico rapido**:
+1. Plesk -> File Manager -> `httpdocs/` -> renombrar `web.config` a `web.config.bak`.
+2. Recargar el sitio. Si carga (sin SPA fallback funcionando), el `web.config` es el culpable.
+
+**Fix**: cada `<mimeMap>` debe ir precedido de un `<remove>` para limpiar la entry server-level antes de agregarla a nivel site:
+
+```xml
+<staticContent>
+  <remove fileExtension=".webp" />
+  <mimeMap fileExtension=".webp" mimeType="image/webp" />
+  <remove fileExtension=".woff" />
+  <mimeMap fileExtension=".woff" mimeType="font/woff" />
+  <remove fileExtension=".woff2" />
+  <mimeMap fileExtension=".woff2" mimeType="font/woff2" />
+  <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+</staticContent>
+```
+
+El `public/web.config` del repo ya tiene esta estructura. Si en algun momento se reemplaza por una version sin `<remove>`, el deploy va a fallar con 500 al primer intento.
+
+### Sintoma: deploy exitoso pero `carnet/` o `images/` desaparecieron
+
+Significa que alguien configuro additional deploy actions con un `robocopy /MIR` sin las exclusiones (`/XD ... /XF ...`) o con un `rm -rf httpdocs/*` sin filtros. **Restaurar inmediatamente desde el zip de backup** y revisar el snippet en la seccion 4.

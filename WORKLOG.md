@@ -323,3 +323,30 @@ Inspección del subscription en Plesk: el host es Windows (drive `G:\PleskVhosts
   7. Smoke test cross-device incluye verificar que `https://catrachohn.com/carnet/<DNI>.jpg` y `https://catrachohn.com/images/<archivo>.pdf` siguen accesibles.
 
 Hash legacy redirects: NO necesitan reglas de servidor. Como las rutas legacy (`#myv`, `#info`, `#noticias`, `#distancia`, `#contactos`) son hashes (client-side), el server siempre ve `/index.html` y `useHashPanelSync.legacyMap` ya hace el rewrite a los canónicos vía `history.replaceState`.
+
+### 2026-04-27 — Primer deploy en producción + fix de mimeMap duplicates en IIS
+
+Primer deploy ejecutado desde Plesk apuntando al branch `production` (creado por el workflow `deploy.yml`). Plesk hizo `git pull` correctamente, copió los archivos a `httpdocs/` y preservó por default `carnet/`, `images/` y `.user.ini` sin necesidad de configurar additional deploy actions (Plesk usa `git checkout` que es aditivo, no destructivo — confirmado en producción).
+
+**Bug encontrado en el primer load**: IIS devolvía 500 "The page cannot be displayed because an internal server error has occurred." en cualquier ruta, incluso `https://catrachohn.com/index.html` directo. Diagnóstico:
+
+- Renombrar `httpdocs/web.config` a `web.config.bak` -> el sitio cargó (sin SPA fallback funcionando, pero cargó). Eso aisló el problema al `web.config`.
+- IIS shared en GoDaddy/Plesk tiene `webp`, `woff` y `woff2` ya definidos como mimeMaps a nivel server. Al redefinirlos en el `web.config` site-level, IIS rechazaba con 500.19 "Cannot add duplicate collection entry".
+
+**Fix**: anteponer `<remove fileExtension="..." />` a cada `<mimeMap>` en `public/web.config`. El `<remove>` quita la entry heredada del server-level, y después la `<add>` (mimeMap) la reagrega. Sin colisión.
+
+```xml
+<staticContent>
+  <remove fileExtension=".webp" />
+  <mimeMap fileExtension=".webp" mimeType="image/webp" />
+  <remove fileExtension=".woff" />
+  <mimeMap fileExtension=".woff" mimeType="font/woff" />
+  <remove fileExtension=".woff2" />
+  <mimeMap fileExtension=".woff2" mimeType="font/woff2" />
+  <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+</staticContent>
+```
+
+Validado: el sitio carga, los modales abren, los assets fingerprint resuelven con el cache header largo, y `carnet/` + `images/` siguen accesibles via URL directa.
+
+`Docs/Deploy_Plesk.md` actualizado con sección 10 "Troubleshooting" que documenta este síntoma específico para que no muerda en futuros despliegues a hosts shared.
