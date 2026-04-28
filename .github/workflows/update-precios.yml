@@ -2,7 +2,7 @@ name: Update precios (dólar + diésel)
 
 on:
   schedule:
-    - cron: '0 13 * * *'
+    - cron: '7 7 * * *'
   workflow_dispatch:
 
 permissions:
@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.BOT_PUSH_TOKEN }}
 
       - uses: actions/setup-node@v5
         with:
