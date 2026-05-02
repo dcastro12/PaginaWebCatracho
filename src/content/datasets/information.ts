@@ -7,12 +7,12 @@ export const informationSnapshot = {
 export const dollarMetrics: InfoMetric[] = [
   {
     label: 'Compra',
-    value: 'L 26.4600',
+    value: 'L 26.5971',
     helper: 'Referencia de compra',
   },
   {
     label: 'Venta',
-    value: 'L 26.5923',
+    value: 'L 26.7301',
     helper: 'Referencia de venta',
   },
 ];
@@ -20,12 +20,12 @@ export const dollarMetrics: InfoMetric[] = [
 export const dieselMetrics: InfoMetric[] = [
   {
     label: 'San Pedro Sula',
-    value: 'L 136.35',
+    value: 'L 136.46',
     helper: 'Por galón',
   },
   {
     label: 'Tegucigalpa',
-    value: 'L 141.38',
+    value: 'L 141.67',
     helper: 'Por galón',
   },
 ];
