@@ -24,12 +24,17 @@ const dryRun = process.argv.includes('--dry-run');
 
 const SOURCES = {
   ficohsa: {
-    url: 'https://www.ficohsa.hn/tasas-de-cambio',
+    // La home tiene el bloque "Cambio del día" con valores que se actualizan a diario.
+    // La antigua /tasas-de-cambio quedó congelada y dejó de actualizarse.
+    url: 'https://www.ficohsa.hn/',
   },
   laprensa: {
     section: 'https://www.laprensa.hn/honduras',
     articleSlug: /\/(?:honduras|portada|economia)\/precios-combustibles-[a-z0-9-]+-[A-Z]{1,4}[0-9]+/,
-    spsMarker: /precios de los combustibles en san pedro sula/i,
+    // Separador histórico: "Precios de los combustibles en San Pedro Sula".
+    // Mayo 2026 lo acortaron a "Combustibles en San Pedro Sula". Aflojamos el
+    // regex para tolerar ambas variantes (y futuras pequeñas).
+    spsMarker: /combustibles en san pedro sula/i,
   },
 };
 
@@ -77,12 +82,13 @@ async function readPrevious() {
 async function scrapeFicohsa() {
   const html = await fetchHtml(SOURCES.ficohsa.url);
   const $ = load(html);
-  const $dolar = $('.tipo-cambio__currency')
-    .filter((_, el) => $(el).find('.tipo-cambio__currency-title').text().trim().toLowerCase().startsWith('dólar'))
-    .first();
-  if ($dolar.length === 0) throw new Error('Ficohsa: bloque del dólar no encontrado.');
-  const buyText = $dolar.find('.tipo-cambio__rate-line').eq(0).find('.tipo-cambio__value').text().trim();
-  const sellText = $dolar.find('.tipo-cambio__rate-line').eq(1).find('.tipo-cambio__value').text().trim();
+  // El bloque "Cambio del día" en la home tiene un contenedor `.values-uno` para
+  // dólar (activo por default) con dos spans diferenciables por clase del padre.
+  const $dolarBlock = $('.values-uno').first();
+  if ($dolarBlock.length === 0) throw new Error('Ficohsa: bloque .values-uno no encontrado en la home.');
+  const buyText = $dolarBlock.find('.gff-indicadores-divisas-v1__buys-value.value-one').first().text().trim();
+  const sellText = $dolarBlock.find('.gff-indicadores-divisas-v1__sale-value.value-one').first().text().trim();
+  if (!buyText || !sellText) throw new Error('Ficohsa: valores de Compra/Venta no encontrados.');
   const buy = parseNumber(buyText);
   const sell = parseNumber(sellText);
   return { buy, sell };
