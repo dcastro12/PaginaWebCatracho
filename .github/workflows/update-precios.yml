@@ -2,7 +2,7 @@ name: Update precios (dólar + diésel)
 
 on:
   schedule:
-    - cron: '7 7 * * *'
+    - cron: '7 12 * * *'
   workflow_dispatch:
 
 permissions:

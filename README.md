@@ -48,7 +48,7 @@ Las tipos que rigen cada dataset están en `src/types/content.ts`. Si la edició
 
 ### Actualización automática del tipo de cambio y precios del diésel
 
-`src/content/datasets/information.ts` se actualiza automáticamente todos los días a las **07:00 hora de Honduras** mediante el workflow `.github/workflows/update-precios.yml`. El script `scripts/update-precios.mjs` hace el trabajo:
+`src/content/datasets/information.ts` se actualiza automáticamente todos los días a las **06:07 hora de Honduras** mediante el workflow `.github/workflows/update-precios.yml`. El script `scripts/update-precios.mjs` hace el trabajo:
 
 1. Scrapea **Ficohsa** (`https://www.ficohsa.hn/tasas-de-cambio`) para obtener compra y venta del dólar.
 2. Busca en `https://www.laprensa.hn/honduras` el artículo más reciente sobre precios de combustibles, lo abre y extrae los precios del diésel para Tegucigalpa y San Pedro Sula.

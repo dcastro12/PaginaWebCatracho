@@ -395,3 +395,15 @@ Después del primer review con el cliente, se aprobaron tres cambios:
 - **Eliminación de la imagen banner en Servicios.** Se borra el `<img className="content-image content-image--banner">` y el import de `serviciosImage` en `ServiciosSection.tsx`. El asset `src/assets/sections/servicios.jpg` (180 KB) queda huérfano y se elimina del repo. La sección queda con la `<ul>` de servicios como único contenido.
 
 `npx tsc -b` limpio después de los cambios. Pendiente: hacer push y un nuevo deploy desde Plesk para que se apliquen en producción.
+
+### 2026-05-06 — Fix: cache del HTML y horario del cron de precios
+
+Dos issues observados en producción:
+
+**1. Data desfasada hasta hacer refresh manual.** El navegador entraba al sitio y veía valores viejos en el panel de Información; un F5 mostraba los nuevos. Causa raíz en `public/web.config`: `<clientCache cacheControlMaxAge="365.00:00:00" />` aplicado a todo el `<staticContent>`, incluido `index.html`. Como Vite emite assets con hash en el nombre pero el HTML no, el navegador servía el HTML viejo de cache (1 año) que apuntaba al bundle viejo.
+
+Fix: invertir el default. `staticContent` ahora declara `cacheControlMode="DisableCache"` (no-cache global, revalidación con ETag), y un `<location path="assets">` aparte mantiene `cacheControlMaxAge="365.00:00:00"` para `dist/assets/*` que sí tienen fingerprint en el nombre.
+
+**2. Cron real fuera de fase con la doc.** El workflow tenía `cron: '7 7 * * *'` (07:07 UTC = **01:07 hora de Honduras**), no las 07:00 CST que el README y la entrada del 2026-04-26 prometían. A esa hora Ficohsa todavía no había publicado el tipo de cambio del día y se quedaba con el valor anterior.
+
+Fix: `cron: '7 12 * * *'` (12:07 UTC = 06:07 hora de Honduras). Hora más temprana pero ya dentro del rango en que Ficohsa publica. README actualizado a "06:07 hora de Honduras".
