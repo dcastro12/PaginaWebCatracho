@@ -7,12 +7,12 @@ export const informationSnapshot = {
 export const dollarMetrics: InfoMetric[] = [
   {
     label: 'Compra',
-    value: 'L 26.6027',
+    value: 'L 26.6021',
     helper: 'Referencia de compra',
   },
   {
     label: 'Venta',
-    value: 'L 26.7357',
+    value: 'L 26.7351',
     helper: 'Referencia de venta',
   },
 ];
