@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <defs>
+    <style><![CDATA[
+      .canvas { fill: #0B0D10; }
+      .divider { stroke: #3A4150; stroke-width: 1; opacity: 0.9; }
+      .mutedDivider { stroke: #3A4150; stroke-width: 1; opacity: 0.65; }
+      .title { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 22px; font-weight: 800; fill: #F5F7FA; letter-spacing: 2px; }
+      .caption { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 11px; font-weight: 400; fill: #8E97A6; }
+      .label { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 600; fill: #B8C0CC; }
+
+      .btnPrimary { fill: #1EA7FF; stroke: #1EA7FF; stroke-width: 1; }
+      .btnOutline { fill: none; stroke: #2A2F3A; stroke-width: 1; }
+      .btnTextDark { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #0B0D10; }
+      .btnTextLight { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #F5F7FA; }
+    ]]></style>
+  </defs>
+<rect class="canvas" x="0" y="0" width="390" height="844"/>
+<text class="title" x="20" y="48">UI KIT — MODAL (MOBILE)</text>
+<text class="caption" x="20" y="70">Botones alineados dentro del modal | ancho ~92vw | footer apilado</text>
+<line class="divider" x1="20" y1="84" x2="370" y2="84"/>
+<rect x="0" y="100" width="390" height="744" fill="#000000" opacity="0.55"/>
+<rect x="16" y="120" width="358" height="700" rx="16" ry="16" fill="#000000" opacity="0.86" stroke="#2A2F3A" stroke-width="1"/>
+<text x="34" y="164" font-family="Montserrat, system-ui, Segoe UI, Arial" font-size="18" font-weight="700" fill="#F5F7FA" letter-spacing="1.5">TÍTULO</text>
+<rect x="316" y="138" width="40" height="40" rx="12" ry="12" fill="none" stroke="#2A2F3A" stroke-width="1"/>
+<line x1="329" y1="151" x2="343" y2="165" stroke="#F5F7FA" stroke-width="2"/>
+<line x1="343" y1="151" x2="329" y2="165" stroke="#F5F7FA" stroke-width="2"/>
+<line class="divider" x1="30" y1="180" x2="360" y2="180"/>
+<text class="caption" x="34" y="204">Meta opcional</text>
+<rect x="34" y="218" width="322" height="150" rx="12" ry="12" fill="none" stroke="#2A2F3A" stroke-width="1"/>
+<text class="label" x="195.0" y="300" text-anchor="middle">MEDIA</text>
+<rect x="34" y="384" width="322" height="270" rx="12" ry="12" fill="none" stroke="#2A2F3A" stroke-width="1"/>
+<text class="label" x="48" y="412">CONTENIDO (scroll)</text>
+<line class="mutedDivider" x1="48" y1="434" x2="330" y2="434"/>
+<line class="mutedDivider" x1="48" y1="456" x2="330" y2="456"/>
+<line class="mutedDivider" x1="48" y1="478" x2="330" y2="478"/>
+<line class="mutedDivider" x1="48" y1="500" x2="330" y2="500"/>
+<line class="mutedDivider" x1="48" y1="522" x2="330" y2="522"/>
+<line class="mutedDivider" x1="48" y1="544" x2="330" y2="544"/>
+<line class="mutedDivider" x1="48" y1="566" x2="330" y2="566"/>
+<rect x="344" y="402" width="6" height="234" rx="3" ry="3" fill="#3A4150" opacity="0.7"/>
+<rect x="344" y="428" width="6" height="54" rx="3" ry="3" fill="#F5F7FA" opacity="0.85"/>
+<line class="divider" x1="30" y1="670" x2="360" y2="670"/>
+<rect class="btnPrimary" x="34" y="686" width="322" height="44" rx="12" ry="12"/>
+<text class="btnTextDark" x="195.0" y="714" text-anchor="middle">Ver más</text>
+<rect class="btnOutline" x="34" y="742" width="322" height="44" rx="12" ry="12"/>
+<text class="btnTextLight" x="195.0" y="770" text-anchor="middle">Descargar</text>
+<text class="caption" x="34" y="802">Cierra con X | click fuera | ESC</text>
+</svg>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <style><![CDATA[
+      .canvas { fill: #0B0D10; }
+      .frame { fill: none; stroke: #2A2F3A; stroke-width: 2; }
+      .panelLight { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .divider { stroke: #3A4150; stroke-width: 2; opacity: 0.9; }
+      .mutedDivider { stroke: #3A4150; stroke-width: 1.5; opacity: 0.65; }
+      .title { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 22px; font-weight: 800; fill: #F5F7FA; letter-spacing: 2px; }
+      .section { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 800; fill: #F5F7FA; letter-spacing: 1.2px; }
+      .label { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 600; fill: #B8C0CC; }
+      .body { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 400; fill: #F5F7FA; }
+      .small { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 400; fill: #B8C0CC; }
+      .caption { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 11px; font-weight: 400; fill: #8E97A6; }
+      .chip { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .btnPrimary { fill: #1EA7FF; stroke: #1EA7FF; stroke-width: 2; }
+      .btnPrimaryHover { fill: #3AB6FF; stroke: #3AB6FF; stroke-width: 2; }
+      .btnPrimaryPressed { fill: #1793E0; stroke: #1793E0; stroke-width: 2; }
+      .btnOutline { fill: none; stroke: #B8C0CC; stroke-width: 2; }
+      .btnDisabled { opacity: 0.45; }
+      .btnTextDark { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #0B0D10; }
+      .btnTextLight { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #F5F7FA; }
+      .btnTextMuted { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #B8C0CC; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; fill: #B8C0CC; }
+    ]]></style>
+  </defs>
+<rect class="canvas" x="0" y="0" width="1440" height="900"/>
+<rect class="frame" x="28" y="28" width="1384" height="844" rx="18" ry="18"/>
+<text class="title" x="64" y="86">UI KIT — COLORES</text>
+<text class="caption" x="64" y="112">Tokens: base, texto, bordes, overlay, acento y estados</text>
+<line class="divider" x1="64" y1="132" x2="1376" y2="132"/>
+<rect class="panelLight" x="64" y="180" width="396" height="78" rx="14" ry="14"/>
+<rect x="82" y="200" width="54" height="54" rx="12" ry="12" fill="#0B0D10" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="150" y="224">bg/base</text>
+<text class="mono" x="150" y="248">#0B0D10</text>
+<rect class="panelLight" x="64" y="276" width="396" height="78" rx="14" ry="14"/>
+<rect x="82" y="296" width="54" height="54" rx="12" ry="12" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<rect x="82" y="296" width="54" height="54" rx="12" ry="12" fill="#000000" opacity="0.86"/>
+<text class="label" x="150" y="320">bg/modal</text>
+<text class="mono" x="150" y="344">rgba(0,0,0,0.86)</text>
+<rect class="panelLight" x="64" y="372" width="396" height="78" rx="14" ry="14"/>
+<rect x="82" y="392" width="54" height="54" rx="12" ry="12" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<rect x="82" y="392" width="54" height="54" rx="12" ry="12" fill="#000000" opacity="0.55"/>
+<text class="label" x="150" y="416">overlay/modal</text>
+<text class="mono" x="150" y="440">rgba(0,0,0,0.55)</text>
+<rect class="panelLight" x="64" y="468" width="396" height="78" rx="14" ry="14"/>
+<rect x="82" y="488" width="54" height="54" rx="12" ry="12" fill="#2A2F3A" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="150" y="512">border/subtle</text>
+<text class="mono" x="150" y="536">#2A2F3A</text>
+<rect class="panelLight" x="64" y="564" width="396" height="78" rx="14" ry="14"/>
+<rect x="82" y="584" width="54" height="54" rx="12" ry="12" fill="#3A4150" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="150" y="608">divider/subtle</text>
+<text class="mono" x="150" y="632">#3A4150</text>
+<rect class="panelLight" x="64" y="660" width="396" height="78" rx="14" ry="14"/>
+<rect x="82" y="680" width="54" height="54" rx="12" ry="12" fill="#F5F7FA" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="150" y="704">text/primary</text>
+<text class="mono" x="150" y="728">#F5F7FA</text>
+<rect class="panelLight" x="484" y="180" width="396" height="78" rx="14" ry="14"/>
+<rect x="502" y="200" width="54" height="54" rx="12" ry="12" fill="#B8C0CC" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="570" y="224">text/secondary</text>
+<text class="mono" x="570" y="248">#B8C0CC</text>
+<rect class="panelLight" x="484" y="276" width="396" height="78" rx="14" ry="14"/>
+<rect x="502" y="296" width="54" height="54" rx="12" ry="12" fill="#8E97A6" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="570" y="320">text/muted</text>
+<text class="mono" x="570" y="344">#8E97A6</text>
+<rect class="panelLight" x="484" y="372" width="396" height="78" rx="14" ry="14"/>
+<rect x="502" y="392" width="54" height="54" rx="12" ry="12" fill="#1EA7FF" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="570" y="416">accent/primary</text>
+<text class="mono" x="570" y="440">#1EA7FF</text>
+<rect class="panelLight" x="484" y="468" width="396" height="78" rx="14" ry="14"/>
+<rect x="502" y="488" width="54" height="54" rx="12" ry="12" fill="#3AB6FF" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="570" y="512">accent/hover</text>
+<text class="mono" x="570" y="536">#3AB6FF</text>
+<rect class="panelLight" x="484" y="564" width="396" height="78" rx="14" ry="14"/>
+<rect x="502" y="584" width="54" height="54" rx="12" ry="12" fill="#FF4D4F" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="570" y="608">state/error</text>
+<text class="mono" x="570" y="632">#FF4D4F</text>
+<rect class="panelLight" x="484" y="660" width="396" height="78" rx="14" ry="14"/>
+<rect x="502" y="680" width="54" height="54" rx="12" ry="12" fill="#2ECC71" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="570" y="704">state/success</text>
+<text class="mono" x="570" y="728">#2ECC71</text>
+<rect class="chip" x="64" y="790" width="1312" height="82" rx="14" ry="14"/>
+<text class="label" x="84" y="820">Reglas rápidas</text>
+<text class="small" x="84" y="846">• Contraste alto: texto claro sobre fondos oscuros. • Overlay consistente en todos los modales. • Acento reservado para CTA y foco.</text>
+</svg>

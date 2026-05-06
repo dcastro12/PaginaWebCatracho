@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <style><![CDATA[
+      .canvas { fill: #0B0D10; }
+      .frame { fill: none; stroke: #2A2F3A; stroke-width: 2; }
+      .panelLight { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .divider { stroke: #3A4150; stroke-width: 2; opacity: 0.9; }
+      .mutedDivider { stroke: #3A4150; stroke-width: 1.5; opacity: 0.65; }
+      .title { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 22px; font-weight: 800; fill: #F5F7FA; letter-spacing: 2px; }
+      .section { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 800; fill: #F5F7FA; letter-spacing: 1.2px; }
+      .label { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 600; fill: #B8C0CC; }
+      .body { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 400; fill: #F5F7FA; }
+      .small { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 400; fill: #B8C0CC; }
+      .caption { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 11px; font-weight: 400; fill: #8E97A6; }
+      .chip { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .btnPrimary { fill: #1EA7FF; stroke: #1EA7FF; stroke-width: 2; }
+      .btnPrimaryHover { fill: #3AB6FF; stroke: #3AB6FF; stroke-width: 2; }
+      .btnPrimaryPressed { fill: #1793E0; stroke: #1793E0; stroke-width: 2; }
+      .btnOutline { fill: none; stroke: #B8C0CC; stroke-width: 2; }
+      .btnDisabled { opacity: 0.45; }
+      .btnTextDark { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #0B0D10; }
+      .btnTextLight { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #F5F7FA; }
+      .btnTextMuted { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #B8C0CC; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; fill: #B8C0CC; }
+    ]]></style>
+  </defs>
+<rect class="canvas" x="0" y="0" width="1440" height="900"/>
+<rect class="frame" x="28" y="28" width="1384" height="844" rx="18" ry="18"/>
+<text class="title" x="64" y="86">UI KIT — TIPOGRAFÍAS</text>
+<text class="caption" x="64" y="112">Titulares: Montserrat | Cuerpo: Source Sans 3 (fallback: system)</text>
+<line class="divider" x1="64" y1="132" x2="1376" y2="132"/>
+<text x="64" y="190" font-family="Montserrat, system-ui, Segoe UI, Arial" font-size="48" font-weight="700" fill="#F5F7FA" letter-spacing="6">H1 — TÍTULO PRINCIPAL</text>
+<text class="mono" x="64" y="216">48 / 56 — weight 700 — letter-spacing 0.18em</text>
+<text x="64" y="300" font-family="Montserrat, system-ui, Segoe UI, Arial" font-size="32" font-weight="700" fill="#F5F7FA" letter-spacing="4">H2 — Título de Modal / Sección</text>
+<text class="mono" x="64" y="322">32 / 40 — weight 700 — letter-spacing 0.14em</text>
+<text x="64" y="390" font-family="Montserrat, system-ui, Segoe UI, Arial" font-size="22" font-weight="600" fill="#F5F7FA" letter-spacing="2">H3 — Subtítulo / Bloque</text>
+<text class="mono" x="64" y="410">22 / 30 — weight 600 — letter-spacing 0.08em</text>
+<text class="body" x="64" y="475">Body — Texto estándar para párrafos y contenido largo dentro de modales. Mantener line-height cómodo para lectura, especialmente en mobile.</text>
+<text class="mono" x="64" y="497">16 / 26 — weight 400</text>
+<text class="body" x="64" y="555" font-size="14">Small — Texto secundario para detalles, listas cortas, labels de apoyo.</text>
+<text class="mono" x="64" y="577">14 / 22 — weight 400</text>
+<text class="caption" x="64" y="625" font-size="12" fill="#B8C0CC">Caption/Meta — Fechas, notas, etiquetas y microcopy.</text>
+<text class="mono" x="64" y="645">12 / 18 — weight 400</text>
+<rect class="panelLight" x="980" y="170" width="396" height="652" rx="16" ry="16"/>
+<text class="section" x="1010" y="206">ESCALA MOBILE</text>
+<line class="mutedDivider" x1="1010" y1="222" x2="1348" y2="222"/>
+<text class="label" x="1010" y="270">H1</text>
+<text class="small" x="1120" y="270">32 / 40</text>
+<text class="small" x="1250" y="270">w700</text>
+<line class="mutedDivider" x1="1010" y1="282" x2="1348" y2="282"/>
+<text class="label" x="1010" y="328">H2</text>
+<text class="small" x="1120" y="328">24 / 32</text>
+<text class="small" x="1250" y="328">w700</text>
+<line class="mutedDivider" x1="1010" y1="340" x2="1348" y2="340"/>
+<text class="label" x="1010" y="386">H3</text>
+<text class="small" x="1120" y="386">18 / 26</text>
+<text class="small" x="1250" y="386">w600</text>
+<line class="mutedDivider" x1="1010" y1="398" x2="1348" y2="398"/>
+<text class="label" x="1010" y="444">Body</text>
+<text class="small" x="1120" y="444">16 / 26</text>
+<text class="small" x="1250" y="444">w400</text>
+<line class="mutedDivider" x1="1010" y1="456" x2="1348" y2="456"/>
+<text class="label" x="1010" y="502">Small</text>
+<text class="small" x="1120" y="502">14 / 22</text>
+<text class="small" x="1250" y="502">w400</text>
+<line class="mutedDivider" x1="1010" y1="514" x2="1348" y2="514"/>
+<text class="label" x="1010" y="560">Caption</text>
+<text class="small" x="1120" y="560">12 / 18</text>
+<text class="small" x="1250" y="560">w400</text>
+<line class="mutedDivider" x1="1010" y1="572" x2="1348" y2="572"/>
+<rect class="chip" x="64" y="780" width="880" height="92" rx="14" ry="14"/>
+<text class="label" x="84" y="812">Reglas rápidas</text>
+<text class="small" x="84" y="836">• No usar texto &lt; 14px en contenido principal.  • Mantener line-height cómodo.  • Usar H2 para títulos de modal.</text>
+<text class="small" x="84" y="858">• Mantener consistencia: no mezclar más de 2 niveles de títulos por modal.</text>
+</svg>

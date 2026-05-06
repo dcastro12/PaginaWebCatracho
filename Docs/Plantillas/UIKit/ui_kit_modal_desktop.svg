@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <style><![CDATA[
+      .canvas { fill: #0B0D10; }
+      .frame { fill: none; stroke: #2A2F3A; stroke-width: 2; }
+      .panelLight { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .divider { stroke: #3A4150; stroke-width: 2; opacity: 0.9; }
+      .mutedDivider { stroke: #3A4150; stroke-width: 1.5; opacity: 0.65; }
+      .title { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 22px; font-weight: 800; fill: #F5F7FA; letter-spacing: 2px; }
+      .section { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 800; fill: #F5F7FA; letter-spacing: 1.2px; }
+      .label { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 600; fill: #B8C0CC; }
+      .body { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 400; fill: #F5F7FA; }
+      .small { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 400; fill: #B8C0CC; }
+      .caption { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 11px; font-weight: 400; fill: #8E97A6; }
+      .chip { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .btnPrimary { fill: #1EA7FF; stroke: #1EA7FF; stroke-width: 2; }
+      .btnPrimaryHover { fill: #3AB6FF; stroke: #3AB6FF; stroke-width: 2; }
+      .btnPrimaryPressed { fill: #1793E0; stroke: #1793E0; stroke-width: 2; }
+      .btnOutline { fill: none; stroke: #B8C0CC; stroke-width: 2; }
+      .btnDisabled { opacity: 0.45; }
+      .btnTextDark { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #0B0D10; }
+      .btnTextLight { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #F5F7FA; }
+      .btnTextMuted { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #B8C0CC; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; fill: #B8C0CC; }
+    ]]></style>
+  </defs>
+<rect class="canvas" x="0" y="0" width="1440" height="900"/>
+<rect class="frame" x="28" y="28" width="1384" height="844" rx="18" ry="18"/>
+<text class="title" x="64" y="86">UI KIT — MODAL (BASE)</text>
+<text class="caption" x="64" y="112">Estructura reusable: Header + Media opcional + Body con scroll + Footer opcional</text>
+<line class="divider" x1="64" y1="132" x2="1376" y2="132"/>
+<rect x="64" y="170" width="1312" height="702" rx="18" ry="18" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<text class="caption" x="86" y="204">LANDING (placeholder)</text>
+<rect x="64" y="170" width="1312" height="702" rx="18" ry="18" fill="#000000" opacity="0.55"/>
+<rect x="392" y="210" width="656" height="622" rx="18" ry="18" fill="#000000" opacity="0.86" stroke="#B8C0CC" stroke-width="2"/>
+<text x="420" y="266" font-family="Montserrat, system-ui, Segoe UI, Arial" font-size="22" font-weight="700" fill="#F5F7FA" letter-spacing="2">TÍTULO DEL MODAL</text>
+<rect class="btnOutline" x="976" y="234" width="44" height="44" rx="12" ry="12"/>
+<line x1="990" y1="248" x2="1006" y2="264" stroke="#F5F7FA" stroke-width="2"/>
+<line x1="1006" y1="248" x2="990" y2="264" stroke="#F5F7FA" stroke-width="2"/>
+<line class="divider" x1="412" y1="288" x2="1028" y2="288"/>
+<text class="small" x="420" y="320">Subtítulo / contexto (opcional)</text>
+<text class="caption" x="420" y="342">Etiqueta / fecha (opcional)</text>
+<rect x="420" y="360" width="600" height="190" rx="14" ry="14" fill="none" stroke="#B8C0CC" stroke-width="2"/>
+<text class="label" x="720.0" y="460" text-anchor="middle">MEDIA (opcional)</text>
+<rect x="420" y="570" width="600" height="150" rx="14" ry="14" fill="none" stroke="#B8C0CC" stroke-width="2"/>
+<text class="label" x="436" y="602">CONTENIDO (scroll interno)</text>
+<line class="mutedDivider" x1="436" y1="620" x2="984" y2="620"/>
+<line class="mutedDivider" x1="436" y1="642" x2="984" y2="642"/>
+<line class="mutedDivider" x1="436" y1="664" x2="984" y2="664"/>
+<line class="mutedDivider" x1="436" y1="686" x2="984" y2="686"/>
+<line class="mutedDivider" x1="436" y1="708" x2="984" y2="708"/>
+<rect x="1004" y="588" width="6" height="114" rx="3" ry="3" fill="#3A4150" opacity="0.7"/>
+<rect x="1004" y="602" width="6" height="40" rx="3" ry="3" fill="#F5F7FA" opacity="0.85"/>
+<line class="divider" x1="412" y1="740" x2="1028" y2="740"/>
+<text class="caption" x="420" y="770">ACCIONES (opcional)</text>
+<rect class="btnOutline" x="766" y="756" width="120" height="44" rx="12" ry="12"/>
+<text class="btnTextLight" x="826.0" y="784" text-anchor="middle">Descargar</text>
+<rect class="btnPrimary" x="900" y="756" width="120" height="44" rx="12" ry="12"/>
+<text class="btnTextDark" x="960.0" y="784" text-anchor="middle">Ver más</text>
+</svg>

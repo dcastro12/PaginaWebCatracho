@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <style><![CDATA[
+      .canvas { fill: #0B0D10; }
+      .frame { fill: none; stroke: #2A2F3A; stroke-width: 2; }
+      .panelLight { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .divider { stroke: #3A4150; stroke-width: 2; opacity: 0.9; }
+      .mutedDivider { stroke: #3A4150; stroke-width: 1.5; opacity: 0.65; }
+      .title { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 22px; font-weight: 800; fill: #F5F7FA; letter-spacing: 2px; }
+      .section { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 800; fill: #F5F7FA; letter-spacing: 1.2px; }
+      .label { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 600; fill: #B8C0CC; }
+      .body { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 400; fill: #F5F7FA; }
+      .small { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 400; fill: #B8C0CC; }
+      .caption { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 11px; font-weight: 400; fill: #8E97A6; }
+      .chip { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .btnPrimary { fill: #1EA7FF; stroke: #1EA7FF; stroke-width: 2; }
+      .btnPrimaryHover { fill: #3AB6FF; stroke: #3AB6FF; stroke-width: 2; }
+      .btnPrimaryPressed { fill: #1793E0; stroke: #1793E0; stroke-width: 2; }
+      .btnOutline { fill: none; stroke: #B8C0CC; stroke-width: 2; }
+      .btnDisabled { opacity: 0.45; }
+      .btnTextDark { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #0B0D10; }
+      .btnTextLight { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #F5F7FA; }
+      .btnTextMuted { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #B8C0CC; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; fill: #B8C0CC; }
+    ]]></style>
+  </defs>
+<rect class="canvas" x="0" y="0" width="1440" height="900"/>
+<rect class="frame" x="28" y="28" width="1384" height="844" rx="18" ry="18"/>
+<text class="title" x="64" y="86">UI KIT — BOTONES</text>
+<text class="caption" x="64" y="112">Variantes + estados + tamaños (listos para convertir a componentes)</text>
+<line class="divider" x1="64" y1="132" x2="1376" y2="132"/>
+<text class="section" x="64" y="184">TAMAÑOS</text>
+<line class="mutedDivider" x1="64" y1="200" x2="640" y2="200"/>
+<rect class="btnOutline" x="64" y="220" width="120" height="36" rx="12" ry="12"/>
+<text class="btnTextLight" x="124.0" y="243.0" text-anchor="middle">Sm</text>
+<text class="mono" x="64" y="276">120×36</text>
+<rect class="btnOutline" x="208" y="220" width="140" height="44" rx="12" ry="12"/>
+<text class="btnTextLight" x="278.0" y="247.0" text-anchor="middle">Md</text>
+<text class="mono" x="208" y="284">140×44</text>
+<rect class="btnOutline" x="372" y="220" width="160" height="52" rx="12" ry="12"/>
+<text class="btnTextLight" x="452.0" y="251.0" text-anchor="middle">Lg</text>
+<text class="mono" x="372" y="292">160×52</text>
+<text class="section" x="64" y="340">MATRIZ VARIANTES / ESTADOS</text>
+<line class="mutedDivider" x1="64" y1="356" x2="1376" y2="356"/>
+<text class="label" x="360" y="392">Default</text>
+<text class="label" x="610" y="392">Hover</text>
+<text class="label" x="860" y="392">Pressed</text>
+<text class="label" x="1110" y="392">Disabled</text>
+<text class="section" x="64" y="448">PRIMARY</text>
+<rect class="btnPrimary" x="360" y="420" width="180" height="44" rx="12" ry="12"/>
+<text class="btnTextDark" x="450.0" y="448" text-anchor="middle">Acción</text>
+<rect class="btnPrimaryHover" x="610" y="420" width="180" height="44" rx="12" ry="12"/>
+<text class="btnTextDark" x="700.0" y="448" text-anchor="middle">Acción</text>
+<rect class="btnPrimaryPressed" x="860" y="420" width="180" height="44" rx="12" ry="12"/>
+<text class="btnTextDark" x="950.0" y="448" text-anchor="middle">Acción</text>
+<rect class="btnPrimary btnDisabled" x="1110" y="420" width="180" height="44" rx="12" ry="12"/>
+<text class="btnTextDark" x="1200.0" y="448" text-anchor="middle">Acción</text>
+<text class="section" x="64" y="578">SECONDARY</text>
+<rect x="360" y="550" width="180" height="44" rx="12" ry="12" fill="none" stroke="#B8C0CC" stroke-width="2"/>
+<text class="btnTextLight" x="450.0" y="578" text-anchor="middle">Acción</text>
+<rect x="610" y="550" width="180" height="44" rx="12" ry="12" fill="#111318" stroke="#B8C0CC" stroke-width="2"/>
+<text class="btnTextLight" x="700.0" y="578" text-anchor="middle">Acción</text>
+<rect x="860" y="550" width="180" height="44" rx="12" ry="12" fill="#0F1217" stroke="#B8C0CC" stroke-width="2"/>
+<text class="btnTextLight" x="950.0" y="578" text-anchor="middle">Acción</text>
+<rect x="1110" y="550" width="180" height="44" rx="12" ry="12" fill="none" stroke="#B8C0CC" stroke-width="2" opacity="0.45"/>
+<text class="btnTextMuted" x="1200.0" y="578" text-anchor="middle">Acción</text>
+<text class="section" x="64" y="708">GHOST</text>
+<rect x="360" y="680" width="180" height="44" rx="12" ry="12" fill="none" stroke="none"/>
+<text class="btnTextLight" x="450.0" y="708" text-anchor="middle">Acción</text>
+<rect x="610" y="680" width="180" height="44" rx="12" ry="12" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<text class="btnTextLight" x="700.0" y="708" text-anchor="middle">Acción</text>
+<rect x="860" y="680" width="180" height="44" rx="12" ry="12" fill="#0F1217" stroke="#2A2F3A" stroke-width="2"/>
+<text class="btnTextLight" x="950.0" y="708" text-anchor="middle">Acción</text>
+<rect x="1110" y="680" width="180" height="44" rx="12" ry="12" fill="none" stroke="none" opacity="0.45"/>
+<text class="btnTextMuted" x="1200.0" y="708" text-anchor="middle">Acción</text>
+<text class="section" x="64" y="790">ICON BUTTON — CERRAR</text>
+<line class="mutedDivider" x1="64" y1="806" x2="420" y2="806"/>
+<rect class="btnOutline" x="64" y="828" width="44" height="44" rx="12" ry="12"/>
+<line x1="78" y1="842" x2="94" y2="858" stroke="#F5F7FA" stroke-width="2"/>
+<line x1="94" y1="842" x2="78" y2="858" stroke="#F5F7FA" stroke-width="2"/>
+<text class="mono" x="124" y="856">44×44 — radius 12</text>
+</svg>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <style><![CDATA[
+      .canvas { fill: #0B0D10; }
+      .frame { fill: none; stroke: #2A2F3A; stroke-width: 2; }
+      .panelLight { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .divider { stroke: #3A4150; stroke-width: 2; opacity: 0.9; }
+      .mutedDivider { stroke: #3A4150; stroke-width: 1.5; opacity: 0.65; }
+      .title { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 22px; font-weight: 800; fill: #F5F7FA; letter-spacing: 2px; }
+      .section { font-family: Montserrat, system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 800; fill: #F5F7FA; letter-spacing: 1.2px; }
+      .label { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 600; fill: #B8C0CC; }
+      .body { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 14px; font-weight: 400; fill: #F5F7FA; }
+      .small { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 400; fill: #B8C0CC; }
+      .caption { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 11px; font-weight: 400; fill: #8E97A6; }
+      .chip { fill: #111318; stroke: #2A2F3A; stroke-width: 2; }
+      .btnPrimary { fill: #1EA7FF; stroke: #1EA7FF; stroke-width: 2; }
+      .btnPrimaryHover { fill: #3AB6FF; stroke: #3AB6FF; stroke-width: 2; }
+      .btnPrimaryPressed { fill: #1793E0; stroke: #1793E0; stroke-width: 2; }
+      .btnOutline { fill: none; stroke: #B8C0CC; stroke-width: 2; }
+      .btnDisabled { opacity: 0.45; }
+      .btnTextDark { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #0B0D10; }
+      .btnTextLight { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #F5F7FA; }
+      .btnTextMuted { font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Arial; font-size: 12px; font-weight: 700; fill: #B8C0CC; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; fill: #B8C0CC; }
+    ]]></style>
+  </defs>
+<rect class="canvas" x="0" y="0" width="1440" height="900"/>
+<rect class="frame" x="28" y="28" width="1384" height="844" rx="18" ry="18"/>
+<text class="title" x="64" y="86">UI KIT — TABLA</text>
+<text class="caption" x="64" y="112">Header + filas + zebra + alineación numérica + comportamiento responsive</text>
+<line class="divider" x1="64" y1="132" x2="1376" y2="132"/>
+<rect class="panelLight" x="64" y="180" width="1312" height="610" rx="16" ry="16"/>
+<text class="section" x="86" y="222">TABLA — BASE</text>
+<line class="mutedDivider" x1="86" y1="236" x2="1354" y2="236"/>
+<rect x="86" y="266" width="1268" height="52" rx="12" ry="12" fill="#0F1217" stroke="#2A2F3A" stroke-width="2"/>
+<text class="label" x="116" y="300">No.</text>
+<text class="label" x="244" y="300">Desde</text>
+<text class="label" x="724" y="300">Hasta</text>
+<text class="label" x="1316" y="300" text-anchor="end">Km</text>
+<rect x="86" y="334" width="1268" height="44" rx="10" ry="10" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="362">1</text>
+<text class="body" x="244" y="362">Origen</text>
+<text class="body" x="724" y="362">Destino</text>
+<text class="body" x="1316" y="362" text-anchor="end">000</text>
+<rect x="86" y="386" width="1268" height="44" rx="10" ry="10" fill="#0F1217" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="414">2</text>
+<text class="body" x="244" y="414">Origen</text>
+<text class="body" x="724" y="414">Destino</text>
+<text class="body" x="1316" y="414" text-anchor="end">000</text>
+<rect x="86" y="438" width="1268" height="44" rx="10" ry="10" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="466">3</text>
+<text class="body" x="244" y="466">Origen</text>
+<text class="body" x="724" y="466">Destino</text>
+<text class="body" x="1316" y="466" text-anchor="end">000</text>
+<rect x="86" y="490" width="1268" height="44" rx="10" ry="10" fill="#0F1217" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="518">4</text>
+<text class="body" x="244" y="518">Origen</text>
+<text class="body" x="724" y="518">Destino</text>
+<text class="body" x="1316" y="518" text-anchor="end">000</text>
+<rect x="86" y="542" width="1268" height="44" rx="10" ry="10" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="570">5</text>
+<text class="body" x="244" y="570">Origen</text>
+<text class="body" x="724" y="570">Destino</text>
+<text class="body" x="1316" y="570" text-anchor="end">000</text>
+<rect x="86" y="594" width="1268" height="44" rx="10" ry="10" fill="#0F1217" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="622">6</text>
+<text class="body" x="244" y="622">Origen</text>
+<text class="body" x="724" y="622">Destino</text>
+<text class="body" x="1316" y="622" text-anchor="end">000</text>
+<rect x="86" y="646" width="1268" height="44" rx="10" ry="10" fill="#111318" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="674">7</text>
+<text class="body" x="244" y="674">Origen</text>
+<text class="body" x="724" y="674">Destino</text>
+<text class="body" x="1316" y="674" text-anchor="end">000</text>
+<rect x="86" y="698" width="1268" height="44" rx="10" ry="10" fill="#0F1217" stroke="#2A2F3A" stroke-width="2"/>
+<text class="body" x="116" y="726">8</text>
+<text class="body" x="244" y="726">Origen</text>
+<text class="body" x="724" y="726">Destino</text>
+<text class="body" x="1316" y="726" text-anchor="end">000</text>
+<rect class="chip" x="64" y="808" width="1312" height="84" rx="14" ry="14"/>
+<text class="label" x="86" y="838">Responsive</text>
+<text class="small" x="86" y="862">Mobile: wrap en Desde/Hasta, evitar scroll horizontal; si es inevitable, scroll horizontal solo en la tabla.</text>
+</svg>
