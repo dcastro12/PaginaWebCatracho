@@ -29,12 +29,17 @@ const SOURCES = {
     url: 'https://www.ficohsa.hn/',
   },
   laprensa: {
-    section: 'https://www.laprensa.hn/honduras',
-    articleSlug: /\/(?:honduras|portada|economia)\/precios-combustibles-[a-z0-9-]+-[A-Z]{1,4}[0-9]+/,
-    // Separador histórico: "Precios de los combustibles en San Pedro Sula".
-    // Mayo 2026 lo acortaron a "Combustibles en San Pedro Sula". Aflojamos el
-    // regex para tolerar ambas variantes (y futuras pequeñas).
-    spsMarker: /combustibles en san pedro sula/i,
+    // La sección Honduras dejó de listar el artículo semanal de combustibles
+    // en mayo 2026; pasaron a publicarlo bajo /economia/.
+    section: 'https://www.laprensa.hn/economia',
+    // El slug cambió de "precios-combustibles-..." a "gasolinas-..."
+    // (mayo 2026). Aceptamos ambas keywords para tolerar futuras variantes.
+    articleSlug: /\/(?:honduras|portada|economia)\/[a-z0-9-]*(?:combustibles|gasolinas)[a-z0-9-]*-[A-Z]{1,4}[0-9]+/,
+    // Separadores por ciudad. Tolera "Precios" o "Combustibles" como
+    // primera palabra (varían entre publicaciones). El orden en que
+    // aparezcan en el artículo no importa: la lógica de slicing los ordena.
+    spsMarker: /(?:precios|combustibles)\s+en\s+san\s+pedro\s+sula/i,
+    tegusMarker: /(?:precios|combustibles)\s+en\s+tegucigalpa/i,
   },
 };
 
@@ -118,11 +123,35 @@ async function scrapeLaPrensa() {
   const $ = load(articleHtml);
 
   const items = $('.paragraph p, h2.intertitle, h2').toArray();
-  const splitIndex = items.findIndex((el) => SOURCES.laprensa.spsMarker.test($(el).text()));
-  if (splitIndex === -1) throw new Error('La Prensa: separador "Precios ... San Pedro Sula" no encontrado.');
+  const spsIdx = items.findIndex((el) => SOURCES.laprensa.spsMarker.test($(el).text()));
+  const tegusIdx = items.findIndex((el) => SOURCES.laprensa.tegusMarker.test($(el).text()));
+  if (spsIdx === -1) throw new Error('La Prensa: separador SPS no encontrado.');
 
-  const tegusText = items.slice(0, splitIndex).map((el) => $(el).text()).join(' ');
-  const spsText = items.slice(splitIndex).map((el) => $(el).text()).join(' ');
+  let tegusBlock;
+  let spsBlock;
+  if (tegusIdx === -1) {
+    // Formato histórico: solo había marker SPS. Pre-SPS = Tegus, post-SPS = SPS.
+    tegusBlock = items.slice(0, spsIdx);
+    spsBlock = items.slice(spsIdx);
+  } else {
+    // Formato actual: ambos markers presentes. Cada bloque va desde su marker
+    // hasta el siguiente marker (sin importar el orden en que aparezcan).
+    const ordered = [
+      { city: 'sps', idx: spsIdx },
+      { city: 'tegus', idx: tegusIdx },
+    ].sort((a, b) => a.idx - b.idx);
+    const blocks = {};
+    for (let i = 0; i < ordered.length; i++) {
+      const start = ordered[i].idx;
+      const end = i + 1 < ordered.length ? ordered[i + 1].idx : items.length;
+      blocks[ordered[i].city] = items.slice(start, end);
+    }
+    spsBlock = blocks.sps;
+    tegusBlock = blocks.tegus;
+  }
+
+  const tegusText = tegusBlock.map((el) => $(el).text()).join(' ');
+  const spsText = spsBlock.map((el) => $(el).text()).join(' ');
 
   const tegus = extractDieselPrice(tegusText, 'Tegucigalpa');
   const sps = extractDieselPrice(spsText, 'San Pedro Sula');

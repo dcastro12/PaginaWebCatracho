@@ -407,3 +407,19 @@ Fix: invertir el default. `staticContent` ahora declara `cacheControlMode="Disab
 **2. Cron real fuera de fase con la doc.** El workflow tenía `cron: '7 7 * * *'` (07:07 UTC = **01:07 hora de Honduras**), no las 07:00 CST que el README y la entrada del 2026-04-26 prometían. A esa hora Ficohsa todavía no había publicado el tipo de cambio del día y se quedaba con el valor anterior.
 
 Fix: `cron: '7 12 * * *'` (12:07 UTC = 06:07 hora de Honduras). Hora más temprana pero ya dentro del rango en que Ficohsa publica. README actualizado a "06:07 hora de Honduras".
+
+### 2026-05-30 — Fix: scraper de La Prensa adaptado a nuevo formato
+
+`update-precios.mjs` venía fallando silenciosamente en la mitad de La Prensa (Ficohsa seguía OK). Tres cambios en La Prensa entre abril y mayo 2026 que rompieron el parser:
+
+1. **Sección**. Dejó de publicar el artículo semanal de combustibles en `/honduras`. Lo movieron a `/economia/`.
+2. **Slug del artículo**. Antes era `precios-combustibles-<fecha>-XX12345`. Ahora es `gasolinas-nuevo-aumento-precios-<fecha>-XX12345`.
+3. **Estructura interna del artículo**. Antes había un único separador "Combustibles en San Pedro Sula" que dividía Tegucigalpa (arriba) de SPS (abajo). Ahora hay **headers explícitos para AMBAS ciudades** ("Precios en San Pedro Sula" y "Precios en Tegucigalpa") y SPS aparece **primero**.
+
+Cambios en `scripts/update-precios.mjs`:
+- `SOURCES.laprensa.section` → `/economia`.
+- `articleSlug` regex aflojado a `(?:combustibles|gasolinas)` para tolerar ambas keywords (y futuras variantes con el mismo enfoque temático).
+- `spsMarker` y nuevo `tegusMarker` con `(?:precios|combustibles)\s+en\s+(?:san pedro sula|tegucigalpa)` para tolerar ambos prefijos y espacios variables.
+- `scrapeLaPrensa()`: si encuentra ambos markers, ordena por índice y asigna cada bloque sin asumir orden de aparición. Si solo encuentra el de SPS (formato histórico), mantiene la lógica vieja (pre-SPS = Tegus, post-SPS = SPS) como fallback.
+
+Validado con `--dry-run` contra el artículo del 25/05/2026: Tegucigalpa L 138.92 / SPS L 134.21. Dólar (Ficohsa, sin cambios): L 26.6562 / L 26.7895.
