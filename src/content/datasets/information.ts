@@ -1,7 +1,7 @@
 import type { InfoMetric } from '../../types/content';
 
 export const informationSnapshot = {
-  updatedAt: '28/07/2026',
+  updatedAt: '29/07/2026',
 };
 
 export const dollarMetrics: InfoMetric[] = [
