@@ -1,18 +1,18 @@
 import type { InfoMetric } from '../../types/content';
 
 export const informationSnapshot = {
-  updatedAt: '11/08/2026',
+  updatedAt: '12/08/2026',
 };
 
 export const dollarMetrics: InfoMetric[] = [
   {
     label: 'Compra',
-    value: 'L 26.8112',
+    value: 'L 26.8108',
     helper: 'Referencia de compra',
   },
   {
     label: 'Venta',
-    value: 'L 26.9453',
+    value: 'L 26.9449',
     helper: 'Referencia de venta',
   },
 ];
