@@ -1,7 +1,7 @@
 import type { InfoMetric } from '../../types/content';
 
 export const informationSnapshot = {
-  updatedAt: '19/09/2026',
+  updatedAt: '20/09/2026',
 };
 
 export const dollarMetrics: InfoMetric[] = [
@@ -20,12 +20,12 @@ export const dollarMetrics: InfoMetric[] = [
 export const dieselMetrics: InfoMetric[] = [
   {
     label: 'San Pedro Sula',
-    value: 'L 130.62',
+    value: 'L 146.85',
     helper: 'Por galón',
   },
   {
     label: 'Tegucigalpa',
-    value: 'L 119.97',
+    value: 'L 151.10',
     helper: 'Por galón',
   },
 ];
