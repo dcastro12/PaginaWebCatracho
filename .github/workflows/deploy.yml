@@ -9,6 +9,11 @@ on:
 permissions:
   contents: write
 
+# Non-force pushes mean concurrent runs would collide. Serialise them.
+concurrency:
+  group: publish-production
+  cancel-in-progress: false
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -28,16 +33,37 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Push dist/ to production branch
+      - name: Publish dist/ to production branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd dist
-          git init -b production
-          git config user.name  "catracho-bot"
-          git config user.email "bot@catrachohn.com"
-          git add -A
-          git commit -m "Build ${GITHUB_SHA::7} from main"
-          git push --force \
-            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
-            HEAD:production
+          set -euo pipefail
+          REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          git config --global user.name  "catracho-bot"
+          git config --global user.email "bot@catrachohn.com"
+
+          # Materialise the EXISTING production branch so we can commit on top.
+          # First-run fallback: branch does not exist yet -> start an orphan.
+          if git ls-remote --exit-code --heads "$REMOTE" production >/dev/null 2>&1; then
+            git clone --branch production --single-branch --depth 1 "$REMOTE" publish
+          else
+            git clone --depth 1 "$REMOTE" publish
+            git -C publish checkout --orphan production
+            git -C publish rm -rf --quiet . || true
+          fi
+
+          # Wholesale content replacement so stale hashed assets are DELETED,
+          # not accumulated. .git is preserved.
+          find publish -mindepth 1 -maxdepth 1 -not -name .git -exec rm -rf {} +
+          cp -a dist/. publish/
+
+          git -C publish add -A
+          if git -C publish diff --cached --quiet; then
+            echo "Build output unchanged; nothing to publish."
+            exit 0
+          fi
+
+          git -C publish commit -m "Build ${GITHUB_SHA::7} from main"
+          # No --force. A rejection here means a real race, and must be loud.
+          git -C publish push "$REMOTE" production
