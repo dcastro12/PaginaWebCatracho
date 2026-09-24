@@ -8,20 +8,20 @@ on:
     # "is the site healthy right now?" independently of deploy activity.
     - cron: '17 */4 * * *'
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Deploy a production (build + push de dist/)"]
-    types:
-      - completed
+
+# A `workflow_run` trigger on the deploy workflow was tried here and removed:
+# it never fired across three completed deploy runs, with every documented
+# precondition satisfied (same repo, workflow on the default branch, names
+# byte-identical, human `push` and `workflow_dispatch` actors, no skipped
+# runs recorded). The post-deploy check now lives as a step inside
+# deploy.yml instead, which is also the better design: it runs in the same
+# job that just published, with no cross-workflow coupling.
 
 permissions:
   contents: read
 
 jobs:
   smoke:
-    # For the workflow_run trigger, only check after the deploy workflow
-    # actually succeeded — a failed/cancelled deploy run has nothing new to
-    # verify and would just add noise.
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,13 +31,6 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: '20'
-
-      - name: Wait for Plesk to pick up the new publish
-        if: ${{ github.event_name == 'workflow_run' }}
-        # Plesk pulls the `production` branch asynchronously — a successful
-        # publish does not mean the live site has updated yet. Give it a
-        # head start before asserting.
-        run: sleep 90
 
       - name: Run smoke check
         run: node scripts/smoke-deploy.mjs
