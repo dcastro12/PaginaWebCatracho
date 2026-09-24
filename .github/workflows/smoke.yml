@@ -1,0 +1,43 @@
+name: Smoke test (live site)
+
+on:
+  schedule:
+    # Every 4 hours. This is the LOAD-BEARING trigger: the 2026-09-21 outage
+    # happened because deploys had stopped firing entirely, so a hook that
+    # only runs after a publish would never have caught it. This asks
+    # "is the site healthy right now?" independently of deploy activity.
+    - cron: '17 */4 * * *'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Deploy a production (build + push de dist/)"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    # For the workflow_run trigger, only check after the deploy workflow
+    # actually succeeded — a failed/cancelled deploy run has nothing new to
+    # verify and would just add noise.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Wait for Plesk to pick up the new publish
+        if: ${{ github.event_name == 'workflow_run' }}
+        # Plesk pulls the `production` branch asynchronously — a successful
+        # publish does not mean the live site has updated yet. Give it a
+        # head start before asserting.
+        run: sleep 90
+
+      - name: Run smoke check
+        run: node scripts/smoke-deploy.mjs
