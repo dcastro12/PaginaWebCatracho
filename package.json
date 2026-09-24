@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "optimize:assets": "node scripts/optimize-assets.mjs",
-    "update:precios": "node scripts/update-precios.mjs"
+    "update:precios": "node scripts/update-precios.mjs",
+    "smoke:deploy": "node scripts/smoke-deploy.mjs"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
