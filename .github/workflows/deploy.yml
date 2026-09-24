@@ -70,3 +70,11 @@ jobs:
           git -C publish commit -m "Build ${GITHUB_SHA::7} from main"
           # No --force. A rejection here means a real race, and must be loud.
           git -C publish push "$REMOTE" production
+
+      - name: Wait for Plesk to pick up the publish
+        # Plesk pulls the `production` branch asynchronously, so a successful
+        # push does not mean the live site has updated yet.
+        run: sleep 90
+
+      - name: Smoke check the live site
+        run: node scripts/smoke-deploy.mjs
