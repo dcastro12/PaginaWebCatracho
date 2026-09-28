@@ -39,7 +39,7 @@ const SOURCES = {
     // primera palabra (varían entre publicaciones). El orden en que
     // aparezcan en el artículo no importa: la lógica de slicing los ordena.
     spsMarker: /(?:precios|combustibles)\s+en\s+san\s+pedro\s+sula/i,
-    tegusMarker: /(?:precios|combustibles)\s+en\s+tegucigalpa/i,
+    tegusMarker: /(?:precios|combustibles)\s+en\s+(?:tegucigalpa|la\s+capital)/i,
   },
 };
 
@@ -115,7 +115,7 @@ function extractDieselPrice(text, label) {
 async function scrapeLaPrensa() {
   const sectionHtml = await fetchHtml(SOURCES.laprensa.section);
   const m = sectionHtml.match(SOURCES.laprensa.articleSlug);
-  if (!m) throw new Error('La Prensa: artículo de precios no encontrado en /honduras.');
+  if (!m) throw new Error('La Prensa: artículo de precios no encontrado en /economia.');
   const articleUrl = `https://www.laprensa.hn${m[0]}`;
   console.log('La Prensa artículo:', articleUrl);
 
@@ -125,7 +125,9 @@ async function scrapeLaPrensa() {
   const items = $('.paragraph p, h2.intertitle, h2').toArray();
   const spsIdx = items.findIndex((el) => SOURCES.laprensa.spsMarker.test($(el).text()));
   const tegusIdx = items.findIndex((el) => SOURCES.laprensa.tegusMarker.test($(el).text()));
-  if (spsIdx === -1) throw new Error('La Prensa: separador SPS no encontrado.');
+  if (spsIdx === -1 && tegusIdx === -1) {
+    throw new Error('La Prensa: ningún separador de ciudad encontrado.');
+  }
 
   let tegusBlock;
   let spsBlock;
@@ -133,6 +135,12 @@ async function scrapeLaPrensa() {
     // Formato histórico: solo había marker SPS. Pre-SPS = Tegus, post-SPS = SPS.
     tegusBlock = items.slice(0, spsIdx);
     spsBlock = items.slice(spsIdx);
+  } else if (spsIdx === -1) {
+    // Desde el 28/09/2026 el artículo trae un único separador ("Precios en la
+    // capital hondureña") y el bloque de San Pedro Sula queda antes, sin
+    // encabezado propio. Pre-marker = SPS, post-marker = Tegus.
+    spsBlock = items.slice(0, tegusIdx);
+    tegusBlock = items.slice(tegusIdx);
   } else {
     // Formato actual: ambos markers presentes. Cada bloque va desde su marker
     // hasta el siguiente marker (sin importar el orden en que aparezcan).
