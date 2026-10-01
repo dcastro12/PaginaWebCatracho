@@ -14,13 +14,10 @@
  * y no toca el archivo.
  */
 import { readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { formatLempira, today } from './precios/format.mjs';
+import { today } from './precios/format.mjs';
+import { buildFile, readPrevious, targetFile } from './precios/dataset.mjs';
 import { SOURCES, findLaPrensaArticlePath, parseFicohsa, parseLaPrensa } from './precios/parsers.mjs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const targetFile = path.resolve(__dirname, '..', 'src/content/datasets/information.ts');
 const dryRun = process.argv.includes('--dry-run');
 
 async function fetchHtml(url) {
@@ -29,20 +26,6 @@ async function fetchHtml(url) {
   });
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
   return await res.text();
-}
-
-async function readPrevious() {
-  const content = await readFile(targetFile, 'utf8');
-  const grab = (label) => {
-    const re = new RegExp(`label:\\s*'${label}',\\s*\\n?\\s*value:\\s*'L\\s*([\\d.]+)'`);
-    const m = content.match(re);
-    if (!m) throw new Error(`No pude leer valor previo de "${label}"`);
-    return parseFloat(m[1]);
-  };
-  return {
-    dollar: { buy: grab('Compra'), sell: grab('Venta') },
-    diesel: { sps: grab('San Pedro Sula'), tegus: grab('Tegucigalpa') },
-  };
 }
 
 async function scrapeFicohsa() {
@@ -56,41 +39,6 @@ async function scrapeLaPrensa() {
   console.log('La Prensa artículo:', articleUrl);
 
   return parseLaPrensa(await fetchHtml(articleUrl));
-}
-
-function buildFile({ updatedAt, dollar, diesel }) {
-  return `import type { InfoMetric } from '../../types/content';
-
-export const informationSnapshot = {
-  updatedAt: '${updatedAt}',
-};
-
-export const dollarMetrics: InfoMetric[] = [
-  {
-    label: 'Compra',
-    value: '${formatLempira(dollar.buy, 4)}',
-    helper: 'Referencia de compra',
-  },
-  {
-    label: 'Venta',
-    value: '${formatLempira(dollar.sell, 4)}',
-    helper: 'Referencia de venta',
-  },
-];
-
-export const dieselMetrics: InfoMetric[] = [
-  {
-    label: 'San Pedro Sula',
-    value: '${formatLempira(diesel.sps, 2)}',
-    helper: 'Por galón',
-  },
-  {
-    label: 'Tegucigalpa',
-    value: '${formatLempira(diesel.tegus, 2)}',
-    helper: 'Por galón',
-  },
-];
-`;
 }
 
 async function main() {
