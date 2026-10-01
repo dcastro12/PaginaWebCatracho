@@ -17,6 +17,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { load } from 'cheerio';
+import { parseNumber, formatLempira, today } from './precios/format.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const targetFile = path.resolve(__dirname, '..', 'src/content/datasets/information.ts');
@@ -49,25 +50,6 @@ async function fetchHtml(url) {
   });
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
   return await res.text();
-}
-
-function parseNumber(raw) {
-  const cleaned = raw.replace(/[^\d.,-]/g, '').replace(/,/g, '');
-  const n = Number(cleaned);
-  if (!Number.isFinite(n)) throw new Error(`Valor no numérico: "${raw}"`);
-  return n;
-}
-
-function formatLempira(n, decimals) {
-  return `L ${n.toFixed(decimals)}`;
-}
-
-function today() {
-  const d = new Date();
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yy = d.getFullYear();
-  return `${dd}/${mm}/${yy}`;
 }
 
 async function readPrevious() {
