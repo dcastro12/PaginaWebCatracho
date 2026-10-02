@@ -184,6 +184,9 @@ describe('run(): exit code and degraded output', () => {
     await go(prev({ diesel: { sps: 146.85, tegus: 151.1 } }), { PRECIOS_OVERRIDE: OVERRIDE() });
     expect(output()).toContain('blocked:diesel-delta');
     expect(output()).not.toContain('override-applied');
+    // The override WAS needed and was not enough: the advisory must not claim otherwise.
+    expect(logged()).not.toContain('no fue necesario');
+    expect(logged()).toContain('no alcanzó');
   });
 
   it('a legacy previous skips Tier D and logs it', async () => {

@@ -36,7 +36,7 @@ const complete = (v) => Object.values(v).every((x) => typeof x === 'number' && N
 // Validates one freshly scraped group. A group fails as a unit and never affects the
 // other. The override is resolved elsewhere and only consulted for overridable invariants.
 function judge(group, fresh, baseline, override, ctx) {
-  if (!fresh) return { publish: false, blocked: [], overridden: [] };
+  if (!fresh) return { publish: false, blocked: [], overridden: [], overrideUsed: [] };
   const missing = missingBaseline(fresh, baseline);
   if (missing.length > 0) {
     console.log(`Tier D omitido para ${group}: sin valor previo de ${missing.join(', ')}.`);
@@ -45,7 +45,9 @@ function judge(group, fresh, baseline, override, ctx) {
   for (const b of blocked) console.error(blockMessage(b, ctx));
   const publish = blocked.length === 0;
   if (publish) for (const o of overridden) console.log(`Override aplicado: invariante "${o.id}".`);
-  return { publish, blocked, overridden: publish ? overridden : [] };
+  // `overridden` = bypassed AND published (drives override-applied); `overrideUsed` =
+  // the override bypassed an invariant, whether or not the group was then published.
+  return { publish, blocked, overridden: publish ? overridden : [], overrideUsed: overridden };
 }
 
 export async function run({ readPreviousFn = readPrevious, env = process.env } = {}) {
@@ -87,13 +89,20 @@ export async function run({ readPreviousFn = readPrevious, env = process.env } =
     for (const b of j.blocked) degradedReasons.push(`blocked:${b.id}`);
     for (const o of j.overridden) degradedReasons.push(`override-applied:${o.id}`);
   }
-  // Advisory path: the override is valid but no invariant needed it. A message
-  // without a verdict: it never reaches `degraded`, so the job stays green.
-  const advisories =
-    override?.ok && dollarJudge.overridden.length + dieselJudge.overridden.length === 0 &&
-    ![dollarJudge, dieselJudge].some((j) => j.blocked.some((b) => b.id === override.id))
-      ? [`PRECIOS_OVERRIDE activo (${override.id} hasta ${override.expires}) pero no fue necesario hoy.`]
-      : [];
+  // Advisory path: a message without a verdict, it never reaches `degraded`. Two
+  // cases. Never fired: the override was not needed. Used but the group stayed
+  // blocked (job already red via blocked:<id>): say it applied and was not enough.
+  const judges = [dollarJudge, dieselJudge];
+  const used = judges.some((j) => j.overrideUsed.length > 0);
+  const published = judges.some((j) => j.overridden.length > 0);
+  let advisories = [];
+  if (override?.ok && !used) {
+    advisories = [`PRECIOS_OVERRIDE activo (${override.id} hasta ${override.expires}) pero no fue necesario hoy.`];
+  } else if (override?.ok && !published) {
+    advisories = [
+      `PRECIOS_OVERRIDE (${override.id} hasta ${override.expires}) se aplicó pero no alcanzó: el grupo sigue bloqueado por otra invariante.`,
+    ];
+  }
 
   // A blocked group with no carried value cannot be written (the file is regenerated
   // wholesale), so that run publishes nothing.
