@@ -14,10 +14,10 @@ describe('parseNumber', () => {
     expect(() => parseNumber('1.2.3')).toThrow('Valor no numérico: "1.2.3"');
   });
 
-  // Characterization of a latent quirk, kept on purpose in this pure refactor:
-  // text with no digits cleans to '' and Number('') is 0, so it does not throw.
-  it('returns 0 for text with no digits (current behavior)', () => {
-    expect(parseNumber('n/a')).toBe(0);
+  // Slice 1 characterized a latent quirk: text with no digits cleans to '' and
+  // Number('') is 0, so parseNumber('n/a') returned 0. It now rejects.
+  it('throws for text with no digits instead of returning 0', () => {
+    expect(() => parseNumber('n/a')).toThrow('Valor no numérico: "n/a"');
   });
 });
 

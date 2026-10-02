@@ -1,6 +1,7 @@
 export function parseNumber(raw) {
   const cleaned = raw.replace(/[^\d.,-]/g, '').replace(/,/g, '');
-  const n = Number(cleaned);
+  // Number('') is 0, so text with no digits ('n/a') must be rejected explicitly.
+  const n = cleaned === '' ? Number.NaN : Number(cleaned);
   if (!Number.isFinite(n)) throw new Error(`Valor no numérico: "${raw}"`);
   return n;
 }
@@ -15,4 +16,8 @@ export function today() {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const yy = d.getFullYear();
   return `${dd}/${mm}/${yy}`;
+}
+
+export function todayISO() {
+  return new Date().toISOString().slice(0, 10);
 }
