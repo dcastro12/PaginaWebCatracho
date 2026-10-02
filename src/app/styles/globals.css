@@ -1261,6 +1261,12 @@ img {
     height: min(90dvh, 820px);
   }
 
+  /* Restates the compact height: the rule above shares its specificity and comes
+     later in the file, so without this a compact panel is pinned to a fixed height. */
+  .panel-frame--compact {
+    height: auto;
+  }
+
   .hero-card {
     min-height: auto;
   }
@@ -1407,6 +1413,12 @@ img {
     margin: 0 auto;
     border-radius: var(--cat-modal-radius-mobile);
     border-width: 1px;
+  }
+
+  /* Restates the compact height: the rule above shares its specificity and comes
+     later in the file, so without this a compact panel is pinned to a fixed height. */
+  .panel-frame--compact {
+    height: auto;
   }
 
   .panel-frame__toolbar {
