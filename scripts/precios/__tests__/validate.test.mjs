@@ -92,7 +92,8 @@ describe('Tier C: diesel tegus > sps (strict), id diesel-tegus-gt-sps', () => {
 
   it('message states blast radius, UI and CLI steps and a ready-to-paste expiry of today + 14', () => {
     const msg = blockMessage(diesel(130.62, 119.97).blocked[0], { today: '2026-10-02', provenance: 'legacy' });
-    expect(msg).toContain('El dólar NO se ve afectado');
+    expect(msg).toContain('El bloqueo afecta solo al diésel; el dólar se evalúa por separado.');
+    expect(msg).not.toContain('sí se publicó');
     expect(msg).toContain('Variables');
     expect(msg).toContain('gh variable set PRECIOS_OVERRIDE --body "diesel-tegus-gt-sps:2026-10-16"');
     expect(msg).toContain('Los días en que el override efectivamente se aplique');
@@ -161,6 +162,13 @@ describe('resolveOverride (pure, the only reader of PRECIOS_OVERRIDE)', () => {
   it('accepts id:expiry up to today + 14 days, inclusive', () => {
     expect(resolveOverride(`${ID}:2026-10-16`, TODAY)).toEqual({ ok: true, id: ID, expires: '2026-10-16' });
     expect(resolveOverride(`${ID}:2026-10-02`, TODAY)).toEqual({ ok: true, id: ID, expires: '2026-10-02' });
+  });
+
+  it('trims outer whitespace of the whole value but stays strict', () => {
+    expect(resolveOverride(`  ${ID}:2026-10-16 `, TODAY)).toEqual({ ok: true, id: ID, expires: '2026-10-16' });
+    expect(resolveOverride(`${ID}:2026-10-16	`, TODAY).ok).toBe(true);
+    expect(resolveOverride(`${ID}:2026-10-16 extra`, TODAY).ok).toBe(false);
+    expect(resolveOverride(`${ID} :2026-10-16`, TODAY).ok).toBe(false);
   });
 
   it.each([

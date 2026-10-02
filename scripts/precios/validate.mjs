@@ -144,9 +144,12 @@ const OVERRIDABLE_IDS = () => INVARIANTS.filter((i) => i.overridable).map((i) =>
  * ({ ok: false }): there is no syntax meaning "all", so `true`, `1`, `*` match nothing.
  */
 export function resolveOverride(raw, todayISO) {
-  if (raw == null || raw.trim() === '') return null;
+  // Trim only the outer whitespace of the whole value (an invisible pasted space must
+  // not cost minutes under pressure); validation below stays exactly as strict.
+  const value = raw == null ? '' : raw.trim();
+  if (value === '') return null;
   const fail = (reason) => ({ ok: false, reason, raw });
-  const m = /^([a-z][a-z0-9-]*):(\d{4}-\d{2}-\d{2})$/.exec(raw);
+  const m = /^([a-z][a-z0-9-]*):(\d{4}-\d{2}-\d{2})$/.exec(value);
   if (!m) return fail('formato inválido');
   const [, id, expires] = m;
   if (!OVERRIDABLE_IDS().includes(id)) return fail(`la invariante "${id}" no admite override`);
@@ -173,7 +176,7 @@ function tierCMessage({ id, violation }, { today, provenance }) {
   Observado: ${violation.observed}
   Fuente: laprensa / estrategia "${provenance}"
 
-  No se publicó el diésel. El dólar NO se ve afectado y sí se publicó.
+  No se publicó el diésel. El bloqueo afecta solo al diésel; el dólar se evalúa por separado.
 
   Si la inversión es REAL (cambió la base administrativa y Tegucigalpa
   efectivamente quedó por debajo de San Pedro Sula), publicá así:
