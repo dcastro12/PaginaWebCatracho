@@ -1,6 +1,8 @@
+import { appendFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { today } from './format.mjs';
 import { buildFile, readPrevious, targetFile } from './dataset.mjs';
+import { decideOutcome, renderReport } from './report.mjs';
 import { SOURCES, findLaPrensaArticlePath, parseFicohsa, parseLaPrensa } from './parsers.mjs';
 
 async function fetchHtml(url) {
@@ -47,8 +49,26 @@ export async function run() {
     console.warn('La Prensa falló:', err.message);
   }
 
-  if (dollarSource === 'previous' && dieselSource === 'previous') {
-    throw new Error('Ambas fuentes fallaron. Sin actualización.');
+  const degradedReasons = [];
+  if (dollarSource === 'previous') degradedReasons.push('source-failed:ficohsa');
+  if (dieselSource === 'previous') degradedReasons.push('source-failed:laprensa');
+
+  // Publishable partial run => exit 0 (the commit step must still run); the job
+  // goes red afterwards through the `degraded` output. Nothing publishable =>
+  // exitCode 1 and no write. See report.mjs.
+  const outcome = decideOutcome({
+    published: dollarSource !== 'previous' || dieselSource !== 'previous',
+    degradedReasons,
+  });
+  const report = renderReport(outcome);
+  for (const line of report.annotations) console.log(line);
+  if (process.env.GITHUB_OUTPUT && report.outputLines.length > 0) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `${report.outputLines.join('\n')}\n`);
+  }
+  if (!outcome.write) {
+    console.error('Ambas fuentes fallaron. Sin actualización.');
+    process.exitCode = outcome.exitCode;
+    return;
   }
 
   const updatedAt = today();
