@@ -651,6 +651,9 @@ img {
 /* The heading rule lives on the wrapper, not on the h3: with the date sharing the
    row, a border on the h3 would underline only the heading text and stop short of it. */
 .information-group__head {
+  /* The card is a grid whose rows stretch, so without this the rule drifts far
+     below the heading and the date floats in the gap. */
+  align-self: start;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
