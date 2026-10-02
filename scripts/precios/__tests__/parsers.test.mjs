@@ -97,7 +97,7 @@ describe('parseLaPrensa branch coverage (synthetic HTML)', () => {
 
   // Same known-bad family: extractDieselPrice takes the LAST 30-500 number in the
   // first sentence mentioning diésel, so a trailing unrelated figure wins.
-  it('legacy branch takes the last in-range number of the diesel sentence (known-bad heuristic)', () => {
+  it('two-marker branch: the heuristic takes the last in-range number of the diesel sentence (known-bad heuristic)', () => {
     const noisy = article(
       'Precios en San Pedro Sula',
       'El diésel regular cuesta 146.85 lempiras, frente a 85.14 de referencia.',
