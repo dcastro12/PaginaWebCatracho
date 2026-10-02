@@ -12,9 +12,9 @@
  * funciona, el grupo fallido conserva su último valor Y su fecha anterior:
  * nunca se sella con la fecha de hoy. La frescura es por grupo (dólar,
  * diésel) y significa "último scrape exitoso de ese grupo", no una fecha
- * compartida. Esta es la regla hacia adelante (se implementa en el slice 4
- * del cambio precios-scraper-hardening); hoy el código aún sella una única
- * fecha compartida.
+ * compartida. Las fechas se guardan en formato ISO (YYYY-MM-DD) dentro de
+ * informationSnapshot; la UI las formatea como dd/mm/yyyy. Un valor
+ * conservado sin fecha de observación conocida no se republica.
  *
  * Motivo del cambio: incidente A (28/09/2026). La Prensa cambió su formato,
  * el parseo del diésel falló, el script conservó el valor viejo y aun así

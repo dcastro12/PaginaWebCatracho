@@ -16,6 +16,10 @@ import { LeyesSection } from '../sections/leyes/LeyesSection';
 import { DistanciasSection } from '../sections/distancias/DistanciasSection';
 import { ContactosSection } from '../sections/contactos/ContactosSection';
 
+// Sections short enough that a full-height frame would be mostly empty.
+// panel-frame--compact lets the frame size to its content, capped by max-height.
+const compactSections: ReadonlySet<SectionId> = new Set(['mision-vision', 'informacion']);
+
 const legacyHashMap: Readonly<Record<string, SectionId>> = {
   myv: 'mision-vision',
   info: 'informacion',
@@ -74,7 +78,7 @@ export function SiteShell() {
         title={currentSection?.label ?? 'CATRACHO'}
         isOpen={Boolean(currentSection)}
         onClose={close}
-        compact={activeId === 'mision-vision'}
+        compact={!!activeId && compactSections.has(activeId)}
       >
         {activeId ? renderSection(activeId) : null}
       </PanelHost>

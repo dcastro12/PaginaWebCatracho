@@ -1,14 +1,15 @@
 import type { InfoMetric } from '../../types/content';
 
 export const informationSnapshot = {
-  "updatedAt": "02/10/2026",
   "dollar": {
     "buy": 26.8925,
-    "sell": 27.027
+    "sell": 27.027,
+    "date": "2026-10-02"
   },
   "diesel": {
     "sps": 149.2,
-    "tegus": 153.53
+    "tegus": 153.53,
+    "date": "2026-09-28"
   },
   "override": null
 };
