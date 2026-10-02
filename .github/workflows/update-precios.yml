@@ -24,7 +24,13 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      # Exits 0 whenever something publishable was written (even if degraded), so
+      # the commit step below still runs. Do NOT make a degraded run exit non-zero
+      # here: that would skip the commit and discard the good value.
       - name: Run scraper
+        id: scrape
+        env:
+          PRECIOS_OVERRIDE: ${{ vars.PRECIOS_OVERRIDE }}
         run: node scripts/update-precios.mjs
 
       - name: Commit if changed
@@ -38,3 +44,14 @@ jobs:
           else
             echo "Sin cambios."
           fi
+
+      # Last step on purpose: the commit above has already published what passed.
+      # Fails the job (red) only when the run was degraded. Advisory-only runs
+      # do not set `degraded`, so they stay green.
+      - name: Report degraded
+        if: steps.scrape.outputs.degraded == 'true'
+        env:
+          DEGRADED_REASON: ${{ steps.scrape.outputs.degraded_reason }}
+        run: |
+          echo "Run degraded: $DEGRADED_REASON"
+          exit 1
