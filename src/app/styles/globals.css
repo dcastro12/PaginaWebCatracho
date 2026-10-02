@@ -629,6 +629,9 @@ img {
 }
 
 .information-groups {
+  /* Auto grid rows stretch when the container is taller than its content, and the
+     slack cascades: cards, then the rows box, then every row. Pin to the top. */
+  align-content: start;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -668,7 +671,7 @@ img {
   margin-left: auto;
   color: var(--cat-text-soft);
   font-family: var(--cat-font-display);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
