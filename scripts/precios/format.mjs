@@ -1,6 +1,7 @@
 export function parseNumber(raw) {
   const cleaned = raw.replace(/[^\d.,-]/g, '').replace(/,/g, '');
-  const n = Number(cleaned);
+  // Number('') is 0, so text with no digits ('n/a') must be rejected explicitly.
+  const n = cleaned === '' ? Number.NaN : Number(cleaned);
   if (!Number.isFinite(n)) throw new Error(`Valor no numérico: "${raw}"`);
   return n;
 }
