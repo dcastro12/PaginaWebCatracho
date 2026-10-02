@@ -1,5 +1,12 @@
-import { describe, expect, it } from 'vitest';
-import { INVARIANTS, blockMessage, missingBaseline, validateGroup } from '../validate.mjs';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  INVARIANTS,
+  blockMessage,
+  invalidOverrideMessage,
+  missingBaseline,
+  resolveOverride,
+  validateGroup,
+} from '../validate.mjs';
 
 const NO_PREV_DOLLAR = { buy: null, sell: null };
 const NO_PREV_DIESEL = { sps: null, tegus: null };
@@ -138,5 +145,85 @@ describe('group independence', () => {
     expect(diesel(149.2, 153.53).blocked).toEqual([]);
     expect(diesel(130.62, 119.97).blocked.length).toBeGreaterThan(0);
     expect(dollar(26.9, 27.0).blocked).toEqual([]);
+  });
+});
+
+describe('resolveOverride (pure, the only reader of PRECIOS_OVERRIDE)', () => {
+  const TODAY = '2026-10-02';
+  const ID = 'diesel-tegus-gt-sps';
+
+  it('treats unset or blank as no override', () => {
+    expect(resolveOverride(undefined, TODAY)).toBeNull();
+    expect(resolveOverride('', TODAY)).toBeNull();
+    expect(resolveOverride('   ', TODAY)).toBeNull();
+  });
+
+  it('accepts id:expiry up to today + 14 days, inclusive', () => {
+    expect(resolveOverride(`${ID}:2026-10-16`, TODAY)).toEqual({ ok: true, id: ID, expires: '2026-10-16' });
+    expect(resolveOverride(`${ID}:2026-10-02`, TODAY)).toEqual({ ok: true, id: ID, expires: '2026-10-02' });
+  });
+
+  it.each([
+    ['expiry beyond the 14 day cap', `${ID}:2026-10-17`],
+    ['expiry in the past', `${ID}:2026-10-01`],
+    ['unknown id', 'dollar-range:2026-10-10'],
+    ['not a real date', `${ID}:2026-02-31`],
+    ['missing expiry', ID],
+    ['trailing garbage', `${ID}:2026-10-10 extra`],
+    ['boolean-looking true', 'true'],
+    ['boolean-looking 1', '1'],
+    ['wildcard *', '*'],
+    ['all', 'all'],
+    ['wildcard id', '*:2026-10-10'],
+  ])('fails closed: %s', (_label, raw) => {
+    const r = resolveOverride(raw, TODAY);
+    expect(r.ok).toBe(false);
+    expect(r.raw).toBe(raw);
+    expect(typeof r.reason).toBe('string');
+  });
+
+  it('prints a distinct message naming what was rejected and the overridable ids', () => {
+    const msg = invalidOverrideMessage(resolveOverride('true', TODAY));
+    expect(msg).toContain('PRECIOS_OVERRIDE presente pero NO aplicado');
+    expect(msg).toContain('Valor recibido: "true"');
+    expect(msg).toContain('Invariantes que admiten override: diesel-tegus-gt-sps');
+  });
+});
+
+describe('override scope is structural', () => {
+  const OVERRIDE = { ok: true, id: 'diesel-tegus-gt-sps', expires: '2026-10-16' };
+
+  it('bypasses Tier C and reports it as applied', () => {
+    const r = validateGroup('diesel', { sps: 130.62, tegus: 119.97 }, NO_PREV_DIESEL, OVERRIDE);
+    expect(r.blocked).toEqual([]);
+    expect(r.overridden.map((o) => o.id)).toEqual(['diesel-tegus-gt-sps']);
+  });
+
+  it('does not bypass Tier B or D even when C is overridden', () => {
+    const range = validateGroup('diesel', { sps: 14.7, tegus: 13.0 }, NO_PREV_DIESEL, OVERRIDE);
+    expect(range.blocked.map((b) => b.id)).toEqual(['diesel-range']);
+    const delta = validateGroup('diesel', { sps: 130.62, tegus: 119.97 }, { sps: 146.85, tegus: 151.1 }, OVERRIDE);
+    expect(delta.blocked.map((b) => b.id)).toEqual(['diesel-delta']);
+    expect(delta.overridden.map((o) => o.id)).toEqual(['diesel-tegus-gt-sps']);
+  });
+
+  it('an override naming another invariant overrides nothing', () => {
+    const r = validateGroup('diesel', { sps: 130.62, tegus: 119.97 }, NO_PREV_DIESEL, { ok: true, id: 'diesel-range', expires: '2026-10-16' });
+    expect(r.blocked.map((b) => b.id)).toEqual(['diesel-tegus-gt-sps']);
+    expect(r.overridden).toEqual([]);
+  });
+
+  it('an invalid override result overrides nothing', () => {
+    const r = validateGroup('diesel', { sps: 130.62, tegus: 119.97 }, NO_PREV_DIESEL, resolveOverride('true', '2026-10-02'));
+    expect(r.blocked.map((b) => b.id)).toEqual(['diesel-tegus-gt-sps']);
+  });
+
+  it('check functions are never called with an override argument', () => {
+    const spies = INVARIANTS.map((inv) => vi.spyOn(inv, 'check'));
+    validateGroup('dollar', { buy: 27, sell: 26 }, NO_PREV_DOLLAR, OVERRIDE);
+    validateGroup('diesel', { sps: 130.62, tegus: 119.97 }, NO_PREV_DIESEL, OVERRIDE);
+    for (const spy of spies) for (const call of spy.mock.calls) expect(call).toHaveLength(1);
+    expect(spies.some((s) => s.mock.calls.length > 0)).toBe(true);
+    vi.restoreAllMocks();
   });
 });

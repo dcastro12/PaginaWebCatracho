@@ -118,15 +118,51 @@ export function missingBaseline(values, previous) {
 }
 
 /**
- * @returns {{blocked: Array<{id: string, tier: string, overridable: boolean, violation: object}>}}
+ * Evaluates one group. `override` (from resolveOverride) is consulted ONLY inside the
+ * `overridable` branch below; `check` itself never receives it, so Tiers A, B and D
+ * have nothing to consult and cannot be bypassed under any value of the variable.
+ * @returns {{blocked: Array<object>, overridden: Array<object>}}
  */
-export function validateGroup(group, values, previous) {
+export function validateGroup(group, values, previous, override = null) {
   const blocked = [];
+  const overridden = [];
   for (const inv of INVARIANTS.filter((i) => i.group === group)) {
     const violation = inv.check({ values, previous });
-    if (violation) blocked.push({ id: inv.id, tier: inv.tier, overridable: inv.overridable, violation });
+    if (!violation) continue;
+    const entry = { id: inv.id, tier: inv.tier, overridable: inv.overridable, violation };
+    if (inv.overridable && override?.ok && override.id === inv.id) overridden.push(entry);
+    else blocked.push(entry);
   }
-  return { blocked };
+  return { blocked, overridden };
+}
+
+const OVERRIDABLE_IDS = () => INVARIANTS.filter((i) => i.overridable).map((i) => i.id);
+
+/**
+ * The ONLY reader of PRECIOS_OVERRIDE. Format `<invariant-id>:<YYYY-MM-DD>`.
+ * Unset/blank -> null. Anything else that is not exactly valid fails closed
+ * ({ ok: false }): there is no syntax meaning "all", so `true`, `1`, `*` match nothing.
+ */
+export function resolveOverride(raw, todayISO) {
+  if (raw == null || raw.trim() === '') return null;
+  const fail = (reason) => ({ ok: false, reason, raw });
+  const m = /^([a-z][a-z0-9-]*):(\d{4}-\d{2}-\d{2})$/.exec(raw);
+  if (!m) return fail('formato inválido');
+  const [, id, expires] = m;
+  if (!OVERRIDABLE_IDS().includes(id)) return fail(`la invariante "${id}" no admite override`);
+  if (new Date(`${expires}T00:00:00Z`).toISOString().slice(0, 10) !== expires) return fail('fecha inexistente');
+  if (expires < todayISO) return fail(`el vencimiento ${expires} ya pasó`);
+  if (expires > addDays(todayISO, OVERRIDE_MAX_DAYS)) {
+    return fail(`el vencimiento ${expires} supera el máximo de ${OVERRIDE_MAX_DAYS} días (${addDays(todayISO, OVERRIDE_MAX_DAYS)})`);
+  }
+  return { ok: true, id, expires };
+}
+
+export function invalidOverrideMessage({ reason, raw }) {
+  return `PRECIOS_OVERRIDE presente pero NO aplicado: ${reason}
+  Valor recibido: "${raw}"
+  Formato esperado: <id-invariante>:<YYYY-MM-DD>   (vencimiento máx. ${OVERRIDE_MAX_DAYS} días)
+  Invariantes que admiten override: ${OVERRIDABLE_IDS().join(', ')}`;
 }
 
 function tierCMessage({ id, violation }, { today, provenance }) {
