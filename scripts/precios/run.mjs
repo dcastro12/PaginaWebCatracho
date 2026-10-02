@@ -1,6 +1,6 @@
 import { appendFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { today, todayISO } from './format.mjs';
+import { todayISO } from './format.mjs';
 import { buildFile, readPrevious, targetFile } from './dataset.mjs';
 import { decideOutcome, renderReport } from './report.mjs';
 import { blockMessage, invalidOverrideMessage, missingBaseline, resolveOverride, validateGroup } from './validate.mjs';
@@ -30,8 +30,12 @@ async function scrapeLaPrensa() {
 // Parser provenance is a constant until slice 3 introduces named strategies.
 const PROVENANCE = 'legacy';
 const NO_BASELINE = { dollar: { buy: null, sell: null }, diesel: { sps: null, tegus: null } };
+const DATE_KEY = 'date';
 
-const complete = (v) => Object.values(v).every((x) => typeof x === 'number' && Number.isFinite(x));
+const complete = (v) =>
+  Object.entries(v)
+    .filter(([k]) => k !== DATE_KEY)
+    .every(([, x]) => typeof x === 'number' && Number.isFinite(x));
 
 // Validates one freshly scraped group. A group fails as a unit and never affects the
 // other. The override is resolved elsewhere and only consulted for overridable invariants.
@@ -78,9 +82,12 @@ export async function run({ readPreviousFn = readPrevious, env = process.env } =
   const dollarJudge = judge('dollar', dollarFresh, baseline.dollar, override, ctx);
   const dieselJudge = judge('diesel', dieselFresh, baseline.diesel, override, ctx);
 
-  // A group that is not published keeps its previous value (if there is one).
-  const dollar = dollarJudge.publish ? dollarFresh : previous.dollar;
-  const diesel = dieselJudge.publish ? dieselFresh : previous.diesel;
+  // Freshness is per group: the date of the last successful scrape + validation of
+  // THAT group. A published group is stamped today even if its value is unchanged. A
+  // group that is not published keeps its previous value AND its previous date,
+  // never today (incident A).
+  const dollar = dollarJudge.publish ? { ...dollarFresh, date: todayIso } : previous.dollar;
+  const diesel = dieselJudge.publish ? { ...dieselFresh, date: todayIso } : previous.diesel;
 
   const degradedReasons = [];
   if (!dollarFresh) degradedReasons.push('source-failed:ficohsa');
@@ -106,8 +113,19 @@ export async function run({ readPreviousFn = readPrevious, env = process.env } =
 
   // A blocked group with no carried value cannot be written (the file is regenerated
   // wholesale), so that run publishes nothing.
-  const buildable = complete(dollar) && complete(diesel);
-  if (!buildable) console.error('No hay valor previo para conservar el grupo no publicado.');
+  // A carried value with no known observation date is not republished either: with no
+  // honest date it cannot be shown as current, and today would repeat incident A.
+  const groups = { dollar, diesel };
+  const carriedUndated = Object.entries(groups).filter(
+    ([name, g]) => !(name === 'dollar' ? dollarJudge : dieselJudge).publish && complete(g) && !g.date,
+  );
+  for (const [name] of carriedUndated) {
+    degradedReasons.push(`stale-date-unknown:${name}`);
+    console.error(`No se republica el ${name}: el valor previo no tiene fecha de observación conocida.`);
+  }
+  const hasValues = complete(dollar) && complete(diesel);
+  if (!hasValues) console.error('No hay valor previo para conservar el grupo no publicado.');
+  const buildable = hasValues && carriedUndated.length === 0;
 
   // Publishable partial run => exit 0 (the commit step must still run); the job
   // goes red afterwards through the `degraded` output. Nothing publishable =>
@@ -128,12 +146,10 @@ export async function run({ readPreviousFn = readPrevious, env = process.env } =
     return;
   }
 
-  const updatedAt = today();
-  console.log('updatedAt', updatedAt);
   console.log('dollar', dollar, `(${dollarJudge.publish ? 'ficohsa' : 'previous'})`);
   console.log('diesel', diesel, `(${dieselJudge.publish ? 'laprensa' : 'previous'})`);
 
-  const next = buildFile({ updatedAt, dollar, diesel, override: override?.ok ? `${override.id}:${override.expires}` : null });
+  const next = buildFile({ dollar, diesel, override: override?.ok ? `${override.id}:${override.expires}` : null });
   if (dryRun) {
     console.log('--- dry run: archivo propuesto ---');
     console.log(next);

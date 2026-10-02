@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { services, serviceGroups } from '../datasets/services';
 import { requirementDownloads, requirementCategories } from '../datasets/requirements';
-import { dollarMetrics, dieselMetrics } from '../datasets/information';
+import { dollarMetrics, dieselMetrics, informationSnapshot } from '../datasets/information';
 import { publications, publicationCategories } from '../datasets/publications';
 import { distanceRows } from '../datasets/distances';
 import { contactGroups } from '../datasets/contact';
@@ -76,6 +76,16 @@ describe('information dataset', () => {
       expect(isNonEmptyString(metric.label), 'empty label in InfoMetric').toBe(true);
       expect(isNonEmptyString(metric.value), `empty value for "${metric.label}"`).toBe(true);
       expect(isNonEmptyString(metric.helper), `empty helper for "${metric.label}"`).toBe(true);
+    }
+  });
+
+  // Characterization of the shipped data (passes on first run; guards seed typos and a
+  // reintroduced shared date). Dates are ISO because <time datetime> requires it.
+  it('each metric group has its own valid ISO date and there is no shared updatedAt', () => {
+    expect(informationSnapshot).not.toHaveProperty('updatedAt');
+    for (const group of [informationSnapshot.dollar, informationSnapshot.diesel]) {
+      expect(group.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(new Date(`${group.date}T00:00:00Z`).toISOString().slice(0, 10)).toBe(group.date);
     }
   });
 });

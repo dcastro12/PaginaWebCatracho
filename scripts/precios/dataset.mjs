@@ -8,9 +8,17 @@ export const targetFile = path.resolve(__dirname, '..', '..', 'src/content/datas
 
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
+// A date is only trusted if it is a real ISO calendar day (the shape <time datetime>
+// needs). Anything else, including the legacy dd/mm/yyyy, is "unknown", never a guess.
+const isoDate = (v) => {
+  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return null;
+  const d = new Date(`${v}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v ? v : null;
+};
+
 const emptySnapshot = () => ({
-  dollar: { buy: null, sell: null },
-  diesel: { sps: null, tegus: null },
+  dollar: { buy: null, sell: null, date: null },
+  diesel: { sps: null, tegus: null, date: null },
   override: null,
   legacy: false,
 });
@@ -22,8 +30,10 @@ function parseLegacy(content) {
     return m ? num(parseFloat(m[1])) : null;
   };
   const found = {
-    dollar: { buy: grab('Compra'), sell: grab('Venta') },
-    diesel: { sps: grab('San Pedro Sula'), tegus: grab('Tegucigalpa') },
+    // The legacy shared updatedAt says when the FILE was written, not when each group
+    // was observed (incident A), so per-group dates stay unknown on this path.
+    dollar: { buy: grab('Compra'), sell: grab('Venta'), date: null },
+    diesel: { sps: grab('San Pedro Sula'), tegus: grab('Tegucigalpa'), date: null },
     override: null,
     legacy: true,
   };
@@ -52,8 +62,8 @@ export function parsePrevious(content) {
     }
     if (snap && typeof snap === 'object' && !Array.isArray(snap)) {
       return {
-        dollar: { buy: num(snap.dollar?.buy), sell: num(snap.dollar?.sell) },
-        diesel: { sps: num(snap.diesel?.sps), tegus: num(snap.diesel?.tegus) },
+        dollar: { buy: num(snap.dollar?.buy), sell: num(snap.dollar?.sell), date: isoDate(snap.dollar?.date) },
+        diesel: { sps: num(snap.diesel?.sps), tegus: num(snap.diesel?.tegus), date: isoDate(snap.diesel?.date) },
         override: typeof snap.override === 'string' ? snap.override : null,
         legacy: false,
       };
@@ -72,15 +82,16 @@ export async function readPrevious(file = targetFile) {
   }
 }
 
-export function buildFile({ updatedAt, dollar, diesel, override = null }) {
+export function buildFile({ dollar, diesel, override = null }) {
   // JSON-compatible literal (double quotes, no trailing commas) so readPrevious can
   // JSON.parse it. No formatter is configured, so nothing rewrites it. Keep it
-  // low-cardinality: values, a date and `id:expiry` only, or the no-change guard breaks.
+  // low-cardinality: values, one ISO date per group and `id:expiry` only, or the
+  // no-change guard breaks. Each date is the last successful scrape + validation of
+  // THAT group; there is deliberately no shared date.
   const snapshot = JSON.stringify(
     {
-      updatedAt,
-      dollar: { buy: dollar.buy, sell: dollar.sell },
-      diesel: { sps: diesel.sps, tegus: diesel.tegus },
+      dollar: { buy: dollar.buy, sell: dollar.sell, date: dollar.date },
+      diesel: { sps: diesel.sps, tegus: diesel.tegus, date: diesel.date },
       override,
     },
     null,

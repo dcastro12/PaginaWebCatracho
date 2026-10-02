@@ -9,14 +9,15 @@ import { buildFile, parsePrevious, readPrevious } from '../dataset.mjs';
 const GOLDEN = `import type { InfoMetric } from '../../types/content';
 
 export const informationSnapshot = {
-  "updatedAt": "01/10/2026",
   "dollar": {
     "buy": 26.8989,
-    "sell": 27.0334
+    "sell": 27.0334,
+    "date": "2026-10-01"
   },
   "diesel": {
     "sps": 149.2,
-    "tegus": 153.53
+    "tegus": 153.53,
+    "date": "2026-09-28"
   },
   "override": null
 };
@@ -48,25 +49,21 @@ export const dieselMetrics: InfoMetric[] = [
 ];
 `;
 
+// Each group carries the ISO date of its own last successful scrape + validation.
+const INPUT = {
+  dollar: { buy: 26.8989, sell: 27.0334, date: '2026-10-01' },
+  diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28' },
+};
+
 describe('buildFile', () => {
   it('renders the exact dataset module', () => {
-    const out = buildFile({
-      updatedAt: '01/10/2026',
-      dollar: { buy: 26.8989, sell: 27.0334 },
-      diesel: { sps: 149.2, tegus: 153.53 },
-    });
-    expect(out).toBe(GOLDEN);
+    expect(buildFile(INPUT)).toBe(GOLDEN);
   });
 });
 
-const INPUT = {
-  updatedAt: '01/10/2026',
-  dollar: { buy: 26.8989, sell: 27.0334 },
-  diesel: { sps: 149.2, tegus: 153.53 },
-};
 const EMPTY = {
-  dollar: { buy: null, sell: null },
-  diesel: { sps: null, tegus: null },
+  dollar: { buy: null, sell: null, date: null },
+  diesel: { sps: null, tegus: null, date: null },
   override: null,
   legacy: false,
 };
@@ -109,7 +106,7 @@ describe('snapshot as JSON', () => {
   it('is valid JSON once the TypeScript wrapper is removed', () => {
     const out = buildFile(INPUT);
     const literal = /export const informationSnapshot = (\{[\s\S]*?\n\});/.exec(out)[1];
-    expect(JSON.parse(literal).dollar).toEqual({ buy: 26.8989, sell: 27.0334 });
+    expect(JSON.parse(literal).dollar).toEqual({ buy: 26.8989, sell: 27.0334, date: '2026-10-01' });
     expect(literal).not.toMatch(/,\s*[}\]]/);
   });
 
@@ -126,10 +123,36 @@ describe('snapshot as JSON', () => {
   // Churn: buildFile output feeds the prev === next guard. Identical inputs must give
   // identical bytes, and the snapshot may only hold values, a date and `id:expiry`
   // (no timestamps, run ids or counters), or the bot would commit every day.
-  it('is deterministic and holds only low-cardinality fields', () => {
+  it('is deterministic and holds only low-cardinality fields and no shared date', () => {
     expect(buildFile(INPUT)).toBe(buildFile({ ...INPUT }));
     const literal = /export const informationSnapshot = (\{[\s\S]*?\n\});/.exec(buildFile(INPUT))[1];
-    expect(Object.keys(JSON.parse(literal))).toEqual(['updatedAt', 'dollar', 'diesel', 'override']);
+    expect(Object.keys(JSON.parse(literal))).toEqual(['dollar', 'diesel', 'override']);
+  });
+});
+
+describe('per-group dates', () => {
+  it('round-trips values AND per-group dates exactly as written (R-F4)', () => {
+    const input = {
+      dollar: { buy: 26.8925, sell: 27.027, date: '2026-10-02' },
+      diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28' },
+    };
+    const read = parsePrevious(buildFile(input));
+    expect(read.dollar).toEqual(input.dollar);
+    expect(read.diesel).toEqual(input.diesel);
+    expect(read.dollar.date).not.toBe(read.diesel.date);
+  });
+
+  it.each([
+    ['dd/mm/yyyy (not valid for <time datetime>)', '02/10/2026'],
+    ['not a calendar date', '2026-13-45'],
+    ['a number', 20261002],
+    ['empty', ''],
+  ])('treats %s as an unknown date, never as a value', (_label, bad) => {
+    const content = `export const informationSnapshot = {
+  "dollar": {"buy": 26.9, "sell": 27, "date": ${JSON.stringify(bad)}},
+  "diesel": {"sps": 1, "tegus": 2}
+};`;
+    expect(parsePrevious(content).dollar).toEqual({ buy: 26.9, sell: 27, date: null });
   });
 });
 
@@ -147,8 +170,8 @@ describe('parsePrevious is total', () => {
     const content =
       'export const informationSnapshot = {\n  "dollar": {"buy": 26.9, "sell": "x"},\n  "diesel": {"sps": 150}\n};';
     expect(parsePrevious(content)).toEqual({
-      dollar: { buy: 26.9, sell: null },
-      diesel: { sps: 150, tegus: null },
+      dollar: { buy: 26.9, sell: null, date: null },
+      diesel: { sps: 150, tegus: null, date: null },
       override: null,
       legacy: false,
     });
@@ -156,8 +179,10 @@ describe('parsePrevious is total', () => {
 
   it('reads a pre-change file via the legacy path and flags it', () => {
     expect(parsePrevious(LEGACY)).toEqual({
-      dollar: { buy: 26.8925, sell: 27.027 },
-      diesel: { sps: 149.2, tegus: 153.53 },
+      // The legacy shared updatedAt is NOT an observation date for either group
+      // (that is incident A), so it is never promoted to a per-group date.
+      dollar: { buy: 26.8925, sell: 27.027, date: null },
+      diesel: { sps: 149.2, tegus: 153.53, date: null },
       override: null,
       legacy: true,
     });
@@ -165,7 +190,7 @@ describe('parsePrevious is total', () => {
 
   it('legacy fields are independently null on a miss', () => {
     const partial = LEGACY.replace("label: 'Venta'", "label: 'Otro'");
-    expect(parsePrevious(partial).dollar).toEqual({ buy: 26.8925, sell: null });
+    expect(parsePrevious(partial).dollar).toEqual({ buy: 26.8925, sell: null, date: null });
   });
 });
 

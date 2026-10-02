@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { todayISO } from '../format.mjs';
+import { parsePrevious } from '../dataset.mjs';
 import { run } from '../run.mjs';
 import { addDays } from '../validate.mjs';
 
@@ -11,8 +12,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name) => readFileSync(path.join(here, '..', '__fixtures__', name), 'utf8');
 // Last stored values near the fixtures (dollar 26.8989/27.0334, diesel 149.2/153.53).
 const PREV = {
-  dollar: { buy: 26.89, sell: 27.02 },
-  diesel: { sps: 149.2, tegus: 153.53 },
+  dollar: { buy: 26.89, sell: 27.02, date: '2026-09-30' },
+  diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28' },
   override: null,
   legacy: false,
 };
@@ -110,7 +111,7 @@ describe('run(): exit code and degraded output', () => {
 
   it('dollar blocked does not block diesel: diesel published, dollar keeps its previous value, exit 0', async () => {
     stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
-    await go(prev({ dollar: { buy: 26.0, sell: 26.1 } }));
+    await go(prev({ dollar: { buy: 26.0, sell: 26.1, date: '2026-09-20' } }));
     expect(process.exitCode ?? 0).toBe(0);
     expect(output()).toContain('degraded=true');
     expect(output()).toContain('blocked:dollar-delta');
@@ -124,7 +125,7 @@ describe('run(): exit code and degraded output', () => {
       ficohsa: fixture('ficohsa-home.html'),
       laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
     });
-    await go(prev({ diesel: { sps: 130.0, tegus: 125.0 } }));
+    await go(prev({ diesel: { sps: 130.0, tegus: 125.0, date: '2026-09-20' } }));
     expect(process.exitCode ?? 0).toBe(0);
     expect(output()).toBe('degraded=true\ndegraded_reason=blocked:diesel-tegus-gt-sps\n');
     expect(proposed()).toContain('"buy": 26.8989');
@@ -137,7 +138,7 @@ describe('run(): exit code and degraded output', () => {
       ficohsa: fixture('ficohsa-home.html'),
       laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
     });
-    await go(prev({ dollar: { buy: 26.0, sell: 26.1 } }));
+    await go(prev({ dollar: { buy: 26.0, sell: 26.1, date: '2026-09-20' } }));
     expect(process.exitCode).toBe(1);
     expect(proposed()).toBe('');
     expect(output()).toBe('');
@@ -148,7 +149,7 @@ describe('run(): exit code and degraded output', () => {
       ficohsa: fixture('ficohsa-home.html'),
       laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
     });
-    await go(prev({ diesel: { sps: 130.0, tegus: 125.0 } }), { PRECIOS_OVERRIDE: OVERRIDE() });
+    await go(prev({ diesel: { sps: 130.0, tegus: 125.0, date: '2026-09-20' } }), { PRECIOS_OVERRIDE: OVERRIDE() });
     expect(process.exitCode ?? 0).toBe(0);
     expect(output()).toBe('degraded=true\ndegraded_reason=override-applied:diesel-tegus-gt-sps\n');
     expect(proposed()).toContain('"tegus": 119.97');
@@ -170,7 +171,7 @@ describe('run(): exit code and degraded output', () => {
       ficohsa: fixture('ficohsa-home.html'),
       laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
     });
-    await go(prev({ diesel: { sps: 130.0, tegus: 140.0 } }), { PRECIOS_OVERRIDE: 'true' });
+    await go(prev({ diesel: { sps: 130.0, tegus: 140.0, date: '2026-09-20' } }), { PRECIOS_OVERRIDE: 'true' });
     expect(output()).toContain('blocked:diesel-tegus-gt-sps');
     expect(console.warn.mock.calls.map((c) => String(c[0])).join('\n')).toContain('presente pero NO aplicado');
     expect(proposed()).toContain('"override": null');
@@ -181,7 +182,7 @@ describe('run(): exit code and degraded output', () => {
       ficohsa: fixture('ficohsa-home.html'),
       laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('238.13', '85.14') },
     });
-    await go(prev({ diesel: { sps: 146.85, tegus: 151.1 } }), { PRECIOS_OVERRIDE: OVERRIDE() });
+    await go(prev({ diesel: { sps: 146.85, tegus: 151.1, date: '2026-09-20' } }), { PRECIOS_OVERRIDE: OVERRIDE() });
     expect(output()).toContain('blocked:diesel-delta');
     expect(output()).not.toContain('override-applied');
     // The override WAS needed and was not enough: the advisory must not claim otherwise.
@@ -191,7 +192,7 @@ describe('run(): exit code and degraded output', () => {
 
   it('a legacy previous skips Tier D and logs it', async () => {
     stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
-    await go(prev({ legacy: true, dollar: { buy: 20, sell: 21 } }));
+    await go(prev({ legacy: true, dollar: { buy: 20, sell: 21, date: '2026-09-20' } }));
     expect(output()).toBe('');
     expect(logged()).toContain('Tier D omitido');
   });
@@ -201,8 +202,65 @@ describe('run(): exit code and degraded output', () => {
       ficohsa: fixture('ficohsa-home.html'),
       laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
     });
-    await go(prev({ diesel: { sps: null, tegus: null } }));
+    await go(prev({ diesel: { sps: null, tegus: null, date: '2026-09-20' } }));
     expect(process.exitCode).toBe(1);
     expect(proposed()).toBe('');
+  });
+
+  // ---- slice 4: per-group freshness ----
+  // The invariant that closes incident A: a carried value carries its carried date.
+  const written = () => parsePrevious(proposed());
+  const T = () => todayISO();
+
+  it('both groups scraped and published: both dates are today, no shared updatedAt', async () => {
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
+    await go(PREV);
+    const out = written();
+    expect(out.dollar.date).toBe(T());
+    expect(out.diesel.date).toBe(T());
+    expect(proposed()).not.toContain('updatedAt');
+  });
+
+  it('a successful scrape with an UNCHANGED value still gets today (freshness is not "value changed")', async () => {
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
+    // Same diesel value as the fixture, old date: 6 days of unchanged weekly price.
+    await go(prev({ diesel: { sps: 149.2, tegus: 153.53, date: addDays(T(), -6) } }));
+    expect(written().diesel).toEqual({ sps: 149.2, tegus: 153.53, date: T() });
+  });
+
+  it('incident A regression: diesel parse failure => diesel keeps value AND previous date, never today', async () => {
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: { section: null } });
+    await go(PREV);
+    const out = written();
+    expect(out.dollar.date).toBe(T());
+    expect(out.diesel).toEqual({ sps: 149.2, tegus: 153.53, date: '2026-09-28' });
+    expect(out.diesel.date).not.toBe(T());
+    expect(output()).toBe('degraded=true\ndegraded_reason=source-failed:laprensa\n');
+  });
+
+  it('dollar failure => dollar keeps value and previous date, diesel gets today', async () => {
+    stubFetch({ ficohsa: null, laprensa: goodLaPrensa() });
+    await go(PREV);
+    const out = written();
+    expect(out.dollar).toEqual({ buy: 26.89, sell: 27.02, date: '2026-09-30' });
+    expect(out.diesel.date).toBe(T());
+  });
+
+  it('a BLOCKED group is not stamped today either: it keeps its previous date', async () => {
+    stubFetch({
+      ficohsa: fixture('ficohsa-home.html'),
+      laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
+    });
+    await go(prev({ diesel: { sps: 130.0, tegus: 125.0, date: '2026-09-20' } }));
+    expect(written().diesel).toEqual({ sps: 130, tegus: 125, date: '2026-09-20' });
+  });
+
+  it('a carried value whose date is UNKNOWN is not republished: nothing written, exit 1', async () => {
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: { section: null } });
+    await go(prev({ diesel: { sps: 149.2, tegus: 153.53, date: null } }));
+    expect(process.exitCode).toBe(1);
+    expect(proposed()).toBe('');
+    expect(errored()).toContain('fecha');
+    expect(errored()).toContain('diesel');
   });
 });
