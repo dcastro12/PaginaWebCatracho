@@ -4,12 +4,12 @@ export const informationSnapshot = {
   "dollar": {
     "buy": 26.8901,
     "sell": 27.0246,
-    "date": "2026-10-03"
+    "date": "2026-10-04"
   },
   "diesel": {
-    "sps": 149.2,
+    "sps": 149.29,
     "tegus": 153.53,
-    "date": "2026-09-28"
+    "date": "2026-10-04"
   },
   "override": null
 };
@@ -30,7 +30,7 @@ export const dollarMetrics: InfoMetric[] = [
 export const dieselMetrics: InfoMetric[] = [
   {
     label: 'San Pedro Sula',
-    value: 'L 149.20',
+    value: 'L 149.29',
     helper: 'Por galón',
   },
   {
