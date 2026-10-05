@@ -7,7 +7,10 @@
 // ONLY { values, previous } and returns null or a violation. It never receives an
 // override: a non-overridable check has no parameter to consult and cannot be bypassed.
 
+import { daysBetween } from './format.mjs';
+
 export const OVERRIDE_MAX_DAYS = 14;
+export const EFFECTIVE_MAX_AGE_DAYS = 14;
 
 const num = (v) => typeof v === 'number' && Number.isFinite(v);
 const fmt = (n) => (num(n) ? n.toFixed(2) : String(n));
@@ -111,6 +114,41 @@ export const INVARIANTS = [
     check: deltaCheck(['sps', 'tegus'], 15, DIESEL_NAMES),
   },
 ];
+
+/**
+ * Announced price vs price in effect. Fuel prices take effect on Mondays, but the press
+ * publishes them from Friday or Saturday, and the article states the effective date.
+ *   pending   effective date is in the future: the announcement is NOT published and the
+ *             current value stands (this is the normal Friday-to-Sunday state, not a
+ *             failure).
+ *   in-effect today or earlier, at most EFFECTIVE_MAX_AGE_DAYS old: publishable.
+ *   stale     older than that: prices change weekly, so the wrong article was read (for
+ *             example the chronology page does not list the newest one). Hard block.
+ * The stale block is shaped like an INVARIANTS entry so it reports through the same
+ * path, but it lives outside INVARIANTS: it is not overridable and the override
+ * mechanism has no syntax that reaches it.
+ */
+export function checkEffectiveDate(effective, today) {
+  const age = daysBetween(effective, today);
+  const stale = (rule) => ({
+    status: 'stale',
+    ageDays: age,
+    block: {
+      id: 'diesel-effective-date-stale',
+      tier: 'E',
+      overridable: false,
+      violation: { rule, observed: `vigencia ${effective}, hoy ${today}${Number.isFinite(age) ? ` (${age} días)` : ''}` },
+    },
+  });
+  if (!Number.isFinite(age)) return stale('el artículo debe traer una fecha de vigencia válida');
+  if (age < 0) return { status: 'pending', effective, ageDays: age };
+  if (age > EFFECTIVE_MAX_AGE_DAYS) {
+    return stale(
+      `la vigencia del artículo no puede tener más de ${EFFECTIVE_MAX_AGE_DAYS} días: los precios cambian cada semana, así que una vigencia más vieja indica que se leyó el artículo equivocado`,
+    );
+  }
+  return { status: 'in-effect', ageDays: age };
+}
 
 /** Keys of `values` with no usable previous value (Tier D is skipped for them). */
 export function missingBaseline(values, previous) {

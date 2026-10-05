@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   INVARIANTS,
   blockMessage,
+  checkEffectiveDate,
   invalidOverrideMessage,
   missingBaseline,
   resolveOverride,
@@ -233,5 +234,43 @@ describe('override scope is structural', () => {
     for (const spy of spies) for (const call of spy.mock.calls) expect(call).toHaveLength(1);
     expect(spies.some((s) => s.mock.calls.length > 0)).toBe(true);
     vi.restoreAllMocks();
+  });
+});
+
+// Announced price vs price in effect. Fuel prices take effect on Mondays but the
+// press publishes them from Friday. The article states the effective date; a value
+// is only current when that date has arrived and is not stale.
+describe('checkEffectiveDate', () => {
+  it('an effective date of today or earlier is in effect (the Monday run takes over)', () => {
+    expect(checkEffectiveDate('2026-10-05', '2026-10-05')).toEqual({ status: 'in-effect', ageDays: 0 });
+    expect(checkEffectiveDate('2026-10-05', '2026-10-09')).toEqual({ status: 'in-effect', ageDays: 4 });
+  });
+
+  it('a FUTURE effective date is pending, not published (Friday to Sunday)', () => {
+    expect(checkEffectiveDate('2026-10-05', '2026-10-02')).toMatchObject({ status: 'pending', effective: '2026-10-05' });
+    expect(checkEffectiveDate('2026-10-05', '2026-10-04').status).toBe('pending');
+  });
+
+  it('exactly 14 days old is still accepted; 15 is stale', () => {
+    expect(checkEffectiveDate('2026-09-28', '2026-10-12').status).toBe('in-effect');
+    const stale = checkEffectiveDate('2026-09-28', '2026-10-13');
+    expect(stale.status).toBe('stale');
+    expect(stale.ageDays).toBe(15);
+  });
+
+  it('a stale date yields a hard-block entry shaped like an invariant, never overridable', () => {
+    const { block } = checkEffectiveDate('2026-09-28', '2026-10-20');
+    expect(block).toMatchObject({ id: 'diesel-effective-date-stale', tier: 'E', overridable: false });
+    expect(block.violation.observed).toContain('2026-09-28');
+    const msg = blockMessage(block, { today: '2026-10-20', provenance: 'x' });
+    expect(msg).toContain('diesel-effective-date-stale');
+    expect(msg).toContain('14');
+    // The override mechanism has no syntax that reaches it.
+    expect(resolveOverride('diesel-effective-date-stale:2026-10-25', '2026-10-20').ok).toBe(false);
+  });
+
+  it('an unusable effective date is stale, not a throw', () => {
+    expect(checkEffectiveDate('05/10/2026', '2026-10-05').status).toBe('stale');
+    expect(checkEffectiveDate(undefined, '2026-10-05').status).toBe('stale');
   });
 });

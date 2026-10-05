@@ -21,6 +21,14 @@
  * actualizó la fecha a hoy: un valor desactualizado con fecha de frescura.
  * Si AMBAS fuentes fallan, el script sale con código != 0 y no toca el
  * archivo.
+ *
+ * Diésel: precio anunciado vs precio vigente. Los precios entran en vigencia
+ * los lunes pero la prensa los anuncia desde el viernes. Cada parser de
+ * scripts/precios/parsers.mjs lee del artículo la fecha de vigencia además de
+ * los precios. Vigencia futura: se ignora el anuncio, el valor actual sigue y
+ * su fecha avanza (el scrape fue exitoso). Vigencia de más de 14 días: se
+ * leyó el artículo equivocado, bloqueo duro. Si ningún parser reconoce el
+ * artículo (o no encuentra la vigencia) el diésel no se publica: no se adivina.
  */
 import { run } from './precios/run.mjs';
 

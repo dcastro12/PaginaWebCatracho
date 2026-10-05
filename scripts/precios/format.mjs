@@ -21,3 +21,14 @@ export function today() {
 export function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
+
+// Whole calendar days from `fromISO` to `toISO` (negative when `toISO` is earlier).
+// Built from the date parts in UTC, so the host timezone cannot shift a day. NaN for
+// anything that is not an ISO date; callers decide what that means.
+export function daysBetween(fromISO, toISO) {
+  const utc = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso));
+    return m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : Number.NaN;
+  };
+  return Math.round((utc(toISO) - utc(fromISO)) / 86_400_000);
+}
