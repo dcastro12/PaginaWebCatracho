@@ -86,7 +86,7 @@ describe('run(): exit code and degraded output', () => {
   });
 
   // Catalog wiring. These were added after the one-line wiring in run.mjs, so no RED
-  // was observed for them; they were checked by mutation (see the apply-progress).
+  // was observed for them; they were checked by mutation.
   it('logs the id of the parser that fired', async () => {
     stubFetch({
       ficohsa: fixture('ficohsa-home.html'),
