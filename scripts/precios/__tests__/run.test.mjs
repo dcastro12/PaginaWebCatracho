@@ -83,6 +83,37 @@ describe('run(): exit code and degraded output', () => {
     expect(output()).toBe('degraded=true\ndegraded_reason=source-failed:laprensa\n');
   });
 
+  // Catalog wiring. These were added after the one-line wiring in run.mjs, so no RED
+  // was observed for them; they were checked by mutation (see the apply-progress).
+  it('logs the id of the parser that fired', async () => {
+    stubFetch({
+      ficohsa: fixture('ficohsa-home.html'),
+      laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: fixture('laprensa-single-marker-2026-09-28.html') },
+    });
+    await run({ readPreviousFn: async () => PREV, env: {} });
+    expect(console.log.mock.calls.map((c) => c.join(' ')).join('\n')).toContain(
+      'La Prensa parser: tegus-marker-galon+entra-en-vigencia',
+    );
+  });
+
+  it('every parser declines: diesel fails loudly (names the count), nothing is guessed, dollar still publishes', async () => {
+    stubFetch({
+      ficohsa: fixture('ficohsa-home.html'),
+      laprensa: {
+        section: `<a href="${ARTICLE}">x</a>`,
+        // Prices a 30-500 heuristic would happily grab, in an unknown format.
+        article: '<html><body><div class="paragraph"><p>El diésel cuesta L149.20 por galón y L153.53 en la capital.</p></div></body></html>',
+      },
+    });
+    await run({ readPreviousFn: async () => PREV, env: {} });
+    expect(process.exitCode ?? 0).toBe(0);
+    expect(output()).toBe('degraded=true\ndegraded_reason=source-failed:laprensa\n');
+    expect(console.warn.mock.calls.map((c) => c.join(' ')).join('\n')).toContain('se probaron 6');
+    const written = console.log.mock.calls.map((c) => String(c[0])).find((t) => t.includes('informationSnapshot'));
+    expect(written).toContain('"sps": 149.2');
+    expect(written).toContain('"date": "2026-09-28"');
+  });
+
   it('both sources fail: exit code 1, no degraded output, does not throw', async () => {
     stubFetch({ ficohsa: null, laprensa: { section: null } });
     await run({ readPreviousFn: async () => PREV, env: {} });
@@ -91,10 +122,13 @@ describe('run(): exit code and degraded output', () => {
   });
 
   // ---- slice 2b: validation, override, group independence ----
+  // Synthetic two-marker article in a format the catalog knows (stated effective date
+  // included), so the values reach validation instead of being declined by the parsers.
   const inverted = (sps, tegus) =>
     '<html><body><div class="paragraph">' +
-    `<p>Precios en San Pedro Sula</p><p>El diésel regular cuesta ${sps} lempiras.</p>` +
-    `<p>Precios en Tegucigalpa</p><p>El diésel regular cuesta ${tegus} lempiras.</p>` +
+    '<p>Para la semana que inicia el lunes 28 de septiembre de 2026.</p>' +
+    `<h2>Precios en San Pedro Sula</h2><p>El diésel cuesta L${sps} por galón.</p>` +
+    `<h2>Precios en Tegucigalpa</h2><p>El diésel cuesta L${tegus} por galón.</p>` +
     '</div></body></html>';
   const goodLaPrensa = () => ({
     section: `<a href="${ARTICLE}">x</a>`,

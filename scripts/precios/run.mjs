@@ -4,7 +4,7 @@ import { todayISO } from './format.mjs';
 import { buildFile, readPrevious, targetFile } from './dataset.mjs';
 import { decideOutcome, renderReport } from './report.mjs';
 import { blockMessage, invalidOverrideMessage, missingBaseline, resolveOverride, validateGroup } from './validate.mjs';
-import { SOURCES, findLaPrensaArticlePath, parseFicohsa, parseLaPrensa } from './parsers.mjs';
+import { SOURCES, findLaPrensaArticlePath, parseDiesel, parseFicohsa } from './parsers.mjs';
 
 async function fetchHtml(url) {
   const res = await fetch(url, {
@@ -18,13 +18,19 @@ async function scrapeFicohsa() {
   return parseFicohsa(await fetchHtml(SOURCES.ficohsa.url));
 }
 
-async function scrapeLaPrensa() {
+async function scrapeLaPrensa(today) {
   const sectionHtml = await fetchHtml(SOURCES.laprensa.section);
   const articlePath = findLaPrensaArticlePath(sectionHtml);
   const articleUrl = `https://www.laprensa.hn${articlePath}`;
   console.log('La Prensa artículo:', articleUrl);
 
-  return parseLaPrensa(await fetchHtml(articleUrl));
+  const result = parseDiesel(await fetchHtml(articleUrl), { today });
+  if (!result.ok) {
+    // No fallback and no guess: an article no parser knows is a loud failure.
+    throw new Error(`ningún parser reconoció el artículo (se probaron ${result.tried}). No se publica el diésel.`);
+  }
+  console.log('La Prensa parser:', result.id);
+  return { sps: result.sps, tegus: result.tegus };
 }
 
 // Parser provenance is a constant until slice 3 introduces named strategies.
@@ -74,7 +80,7 @@ export async function run({ readPreviousFn = readPrevious, env = process.env } =
 
   let dieselFresh = null;
   try {
-    dieselFresh = await scrapeLaPrensa();
+    dieselFresh = await scrapeLaPrensa(todayIso);
   } catch (err) {
     console.warn('La Prensa falló:', err.message);
   }
