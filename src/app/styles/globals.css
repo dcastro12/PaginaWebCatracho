@@ -636,10 +636,9 @@ img {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  scrollbar-gutter: stable;
   display: grid;
   gap: 1rem;
-  padding: 0.5rem 0.6rem 0 0;
+  padding: 0.5rem 0 0;
 }
 
 .information-group {
@@ -1552,7 +1551,6 @@ img {
 
   .information-groups {
     gap: 0.9rem;
-    padding-right: 0.25rem;
   }
 
   .information-group h3 {
