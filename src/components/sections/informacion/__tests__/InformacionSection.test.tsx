@@ -22,12 +22,12 @@ describe('InformacionSection freshness', () => {
     const { container } = render(<InformacionSection />);
     expect(container.querySelector('.info-highlight__date')).toBeNull();
     expect(container.textContent).not.toMatch(/Actualizaci/i);
-    expect(container.querySelector('.info-highlight__eyebrow')?.textContent).toBe('Precios de referencia');
+    expect(container.querySelector('.info-highlight__eyebrow')?.textContent).toBe('Precios');
   });
 
   it.each([
-    ['Precio del dólar', '2026-10-02', '02/10/2026'],
-    ['Precio del diésel', '2026-09-28', '28/09/2026'],
+    ['Dólar', '2026-10-02', '02/10/2026'],
+    ['Diésel', '2026-09-28', '28/09/2026'],
   ])('group "%s" carries its own date as <time>: ISO in datetime, dd/mm/yyyy displayed', (name, iso, shown) => {
     render(<InformacionSection />);
     const group = screen.getByRole('region', { name: new RegExp(name) });
@@ -38,7 +38,7 @@ describe('InformacionSection freshness', () => {
 
   it('the date is part of the group accessible name context (announced with its group)', () => {
     render(<InformacionSection />);
-    const group = screen.getByRole('region', { name: /Precio del diésel/ });
+    const group = screen.getByRole('region', { name: /Diésel/ });
     expect(group).toHaveTextContent('28/09/2026');
   });
 });

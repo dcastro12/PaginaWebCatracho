@@ -45,13 +45,13 @@ export function InformacionSection() {
   return (
     <section className="section-stack section-stack--information">
       <header className="info-highlight">
-        <span className="info-highlight__eyebrow">Precios de referencia</span>
+        <span className="info-highlight__eyebrow">Precios</span>
         <span className="info-highlight__rule" aria-hidden="true" />
       </header>
 
       <div className="information-groups">
-        <InformationGroup id="dollar" title="Precio del dólar" isoDate={informationSnapshot.dollar.date} metrics={dollarMetrics} />
-        <InformationGroup id="diesel" title="Precio del diésel" isoDate={informationSnapshot.diesel.date} metrics={dieselMetrics} />
+        <InformationGroup id="dollar" title="Dólar" isoDate={informationSnapshot.dollar.date} metrics={dollarMetrics} />
+        <InformationGroup id="diesel" title="Diésel" isoDate={informationSnapshot.diesel.date} metrics={dieselMetrics} />
       </div>
     </section>
   );
