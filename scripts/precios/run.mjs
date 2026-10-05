@@ -33,14 +33,13 @@ async function scrapeLaPrensa(today) {
   return { sps: result.sps, tegus: result.tegus, parser: result.id, effective: result.effective };
 }
 
-// Parser provenance is a constant until slice 3 introduces named strategies.
-const PROVENANCE = 'legacy';
 const NO_BASELINE = { dollar: { buy: null, sell: null }, diesel: { sps: null, tegus: null } };
-const DATE_KEY = 'date';
+// Metadata keys of a group; everything else is a numeric value that must be present.
+const META_KEYS = ['date', 'parser'];
 
 const complete = (v) =>
   Object.entries(v)
-    .filter(([k]) => k !== DATE_KEY)
+    .filter(([k]) => !META_KEYS.includes(k))
     .every(([, x]) => typeof x === 'number' && Number.isFinite(x));
 
 // Validates one freshly scraped group. A group fails as a unit and never affects the
@@ -70,7 +69,6 @@ export async function run({ readPreviousFn = readPrevious, env = process.env, to
   const todayIso = today;
   const override = resolveOverride(env.PRECIOS_OVERRIDE, todayIso);
   if (override && !override.ok) console.warn(invalidOverrideMessage(override));
-  const ctx = { today: todayIso, provenance: PROVENANCE };
 
   let dollarFresh = null;
   try {
@@ -89,6 +87,8 @@ export async function run({ readPreviousFn = readPrevious, env = process.env, to
     console.warn('La Prensa falló:', err.message);
   }
 
+  // The parser id that produced the diesel is the provenance shown in block messages.
+  const ctx = { today: todayIso, provenance: dieselMeta?.parser ?? 'desconocido' };
   const dollarJudge = judge('dollar', dollarFresh, baseline.dollar, override, ctx);
 
   // Announced price vs price in effect. The article states when its prices take effect.
@@ -119,7 +119,7 @@ export async function run({ readPreviousFn = readPrevious, env = process.env, to
   const diesel = pending
     ? { ...previous.diesel, date: todayIso }
     : dieselJudge.publish
-      ? { ...dieselFresh, date: todayIso }
+      ? { ...dieselFresh, date: todayIso, parser: dieselMeta.parser }
       : previous.diesel;
 
   const degradedReasons = [];

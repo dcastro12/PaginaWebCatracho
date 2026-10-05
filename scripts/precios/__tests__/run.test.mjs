@@ -261,7 +261,7 @@ describe('run(): exit code and degraded output', () => {
     stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
     // Same diesel value as the fixture, old date: 6 days of unchanged weekly price.
     await go(prev({ diesel: { sps: 149.2, tegus: 153.53, date: addDays(T(), -6) } }));
-    expect(written().diesel).toEqual({ sps: 149.2, tegus: 153.53, date: T() });
+    expect(written().diesel).toEqual({ sps: 149.2, tegus: 153.53, date: T(), parser: 'tegus-marker-galon+entra-en-vigencia' });
   });
 
   it('incident A regression: diesel parse failure => diesel keeps value AND previous date, never today', async () => {
@@ -269,7 +269,7 @@ describe('run(): exit code and degraded output', () => {
     await go(PREV);
     const out = written();
     expect(out.dollar.date).toBe(T());
-    expect(out.diesel).toEqual({ sps: 149.2, tegus: 153.53, date: '2026-09-28' });
+    expect(out.diesel).toEqual({ sps: 149.2, tegus: 153.53, date: '2026-09-28', parser: null });
     expect(out.diesel.date).not.toBe(T());
     expect(output()).toBe('degraded=true\ndegraded_reason=source-failed:laprensa\n');
   });
@@ -288,7 +288,7 @@ describe('run(): exit code and degraded output', () => {
       laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
     });
     await go(prev({ diesel: { sps: 130.0, tegus: 125.0, date: '2026-09-20' } }));
-    expect(written().diesel).toEqual({ sps: 130, tegus: 125, date: '2026-09-20' });
+    expect(written().diesel).toEqual({ sps: 130, tegus: 125, date: '2026-09-20', parser: null });
   });
 
   it('a carried value whose date is UNKNOWN is not republished: nothing written, exit 1', async () => {
@@ -359,7 +359,7 @@ describe('run(): exit code and degraded output', () => {
     stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
     await go(prev({ diesel: { sps: 150.0, tegus: 154.0, date: '2026-10-12' } }), {}, '2026-10-15');
     expect(output()).toBe('degraded=true\ndegraded_reason=blocked:diesel-effective-date-stale\n');
-    expect(diesel()).toEqual({ sps: 150, tegus: 154, date: '2026-10-12' });
+    expect(diesel()).toEqual({ sps: 150, tegus: 154, date: '2026-10-12', parser: null });
     expect(errored()).toContain('diesel-effective-date-stale');
     expect(written().dollar.date).toBe('2026-10-15');
   });
@@ -381,6 +381,50 @@ describe('run(): exit code and degraded output', () => {
     });
     await go(PREV);
     expect(output()).toBe('degraded=true\ndegraded_reason=source-failed:laprensa\n');
-    expect(diesel()).toEqual({ sps: 149.2, tegus: 153.53, date: '2026-09-28' });
+    expect(diesel()).toEqual({ sps: 149.2, tegus: 153.53, date: '2026-09-28', parser: null });
+  });
+
+  // ---- slice 3: parser provenance ----
+  it('persists the id of the parser that fired next to the value it produced', async () => {
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
+    await go(PREV);
+    expect(written().diesel.parser).toBe('tegus-marker-galon+entra-en-vigencia');
+    expect(proposed()).toContain('"source": "laprensa"');
+  });
+
+  it('a diesel group that is not published keeps the provenance of the value it carries', async () => {
+    const carried = { sps: 149.2, tegus: 153.53, date: '2026-09-28', parser: 'two-markers-galon+semana-que-inicia' };
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: { section: null } });
+    await go(prev({ diesel: carried }));
+    expect(written().diesel).toEqual(carried);
+  });
+
+  it('a pending announcement keeps the provenance of the value that stands', async () => {
+    const carried = { sps: 149.2, tegus: 153.53, date: '2026-10-01', parser: 'two-markers-galon+semana-que-inicia' };
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: MORAZANICA() });
+    await go(prev({ diesel: carried }), {}, SAT);
+    expect(written().diesel).toEqual({ ...carried, date: SAT });
+  });
+
+  it('the Tier C message names the real parser, not a placeholder', async () => {
+    stubFetch({
+      ficohsa: fixture('ficohsa-home.html'),
+      laprensa: { section: `<a href="${ARTICLE}">x</a>`, article: inverted('130.62', '119.97') },
+    });
+    await go(prev({ diesel: { sps: 130.0, tegus: 125.0, date: '2026-09-20' } }));
+    expect(errored()).toContain('two-markers-galon+semana-que-inicia');
+    expect(errored()).not.toContain('"legacy"');
+  });
+
+  // No-churn at run level: identical inputs and day produce the identical file, so the
+  // prev === next guard keeps preventing empty commits.
+  it('two identical runs propose the identical file', async () => {
+    stubFetch({ ficohsa: fixture('ficohsa-home.html'), laprensa: goodLaPrensa() });
+    await go(PREV);
+    const first = proposed();
+    console.log.mockClear();
+    await go(PREV);
+    expect(first).not.toBe('');
+    expect(proposed()).toBe(first);
   });
 });

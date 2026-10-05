@@ -12,12 +12,15 @@ export const informationSnapshot = {
   "dollar": {
     "buy": 26.8989,
     "sell": 27.0334,
-    "date": "2026-10-01"
+    "date": "2026-10-01",
+    "source": "ficohsa"
   },
   "diesel": {
     "sps": 149.2,
     "tegus": 153.53,
-    "date": "2026-09-28"
+    "date": "2026-09-28",
+    "source": "laprensa",
+    "parser": "tegus-marker-galon+entra-en-vigencia"
   },
   "override": null
 };
@@ -52,7 +55,7 @@ export const dieselMetrics: InfoMetric[] = [
 // Each group carries the ISO date of its own last successful scrape + validation.
 const INPUT = {
   dollar: { buy: 26.8989, sell: 27.0334, date: '2026-10-01' },
-  diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28' },
+  diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28', parser: 'tegus-marker-galon+entra-en-vigencia' },
 };
 
 describe('buildFile', () => {
@@ -63,7 +66,7 @@ describe('buildFile', () => {
 
 const EMPTY = {
   dollar: { buy: null, sell: null, date: null },
-  diesel: { sps: null, tegus: null, date: null },
+  diesel: { sps: null, tegus: null, date: null, parser: null },
   override: null,
   legacy: false,
 };
@@ -106,7 +109,7 @@ describe('snapshot as JSON', () => {
   it('is valid JSON once the TypeScript wrapper is removed', () => {
     const out = buildFile(INPUT);
     const literal = /export const informationSnapshot = (\{[\s\S]*?\n\});/.exec(out)[1];
-    expect(JSON.parse(literal).dollar).toEqual({ buy: 26.8989, sell: 27.0334, date: '2026-10-01' });
+    expect(JSON.parse(literal).dollar).toEqual({ buy: 26.8989, sell: 27.0334, date: '2026-10-01', source: 'ficohsa' });
     expect(literal).not.toMatch(/,\s*[}\]]/);
   });
 
@@ -130,11 +133,58 @@ describe('snapshot as JSON', () => {
   });
 });
 
+// Provenance (design 4). The parser id is persisted so format drift is a dated,
+// git-blame-able fact. It must be LOW-CARDINALITY: strategy ids and source ids only.
+// Anything that varies per run (timestamp, run id, counter) would turn the
+// prev === next guard off and commit every day.
+describe('parser provenance', () => {
+  const snapshot = (input) =>
+    JSON.parse(/export const informationSnapshot = (\{[\s\S]*?\n\});/.exec(buildFile(input))[1]);
+
+  it('persists the parser id and the source ids in the snapshot', () => {
+    const snap = snapshot(INPUT);
+    expect(snap.diesel).toMatchObject({ source: 'laprensa', parser: 'tegus-marker-galon+entra-en-vigencia' });
+    expect(snap.dollar).toMatchObject({ source: 'ficohsa' });
+  });
+
+  it('round-trips the parser id, and a missing one reads back as null', () => {
+    expect(parsePrevious(buildFile(INPUT)).diesel.parser).toBe('tegus-marker-galon+entra-en-vigencia');
+    const without = { ...INPUT, diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28' } };
+    expect(snapshot(without).diesel.parser).toBeNull();
+    expect(parsePrevious(buildFile(without)).diesel.parser).toBeNull();
+  });
+
+  it('never reads anything but an id back as a parser', () => {
+    const read = (parser) =>
+      parsePrevious(
+        `export const informationSnapshot = {\n  "diesel": {"sps": 1, "tegus": 2, "parser": ${JSON.stringify(parser)}}\n};`,
+      ).diesel.parser;
+    expect(read('two-markers-galon+semana-que-inicia')).toBe('two-markers-galon+semana-que-inicia');
+    for (const bad of [42, '', 'has space', '2026-10-05T12:00:00Z', null, {}]) expect(read(bad)).toBeNull();
+  });
+
+  // No-churn: byte-identical for identical inputs, and the only per-run-varying fields
+  // are the two dates that slice 4 already made intentional. Provenance adds none.
+  it('adds no per-run-varying field: same inputs give the same bytes, and provenance is ids only', () => {
+    expect(buildFile(INPUT)).toBe(buildFile({ ...INPUT }));
+    const snap = snapshot(INPUT);
+    expect(Object.keys(snap.dollar)).toEqual(['buy', 'sell', 'date', 'source']);
+    expect(Object.keys(snap.diesel)).toEqual(['sps', 'tegus', 'date', 'source', 'parser']);
+    for (const id of [snap.dollar.source, snap.diesel.source, snap.diesel.parser]) {
+      expect(id).toMatch(/^[a-z0-9+-]+$/);
+    }
+    // Two days later, same article: only the dates differ.
+    const later = { dollar: { ...INPUT.dollar, date: '2026-10-03' }, diesel: { ...INPUT.diesel, date: '2026-10-03' } };
+    const strip = (o) => JSON.stringify(o, (k, v) => (k === 'date' ? undefined : v));
+    expect(strip(snapshot(later))).toBe(strip(snapshot(INPUT)));
+  });
+});
+
 describe('per-group dates', () => {
   it('round-trips values AND per-group dates exactly as written (R-F4)', () => {
     const input = {
       dollar: { buy: 26.8925, sell: 27.027, date: '2026-10-02' },
-      diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28' },
+      diesel: { sps: 149.2, tegus: 153.53, date: '2026-09-28', parser: 'tegus-marker-galon+entra-en-vigencia' },
     };
     const read = parsePrevious(buildFile(input));
     expect(read.dollar).toEqual(input.dollar);
@@ -171,7 +221,7 @@ describe('parsePrevious is total', () => {
       'export const informationSnapshot = {\n  "dollar": {"buy": 26.9, "sell": "x"},\n  "diesel": {"sps": 150}\n};';
     expect(parsePrevious(content)).toEqual({
       dollar: { buy: 26.9, sell: null, date: null },
-      diesel: { sps: 150, tegus: null, date: null },
+      diesel: { sps: 150, tegus: null, date: null, parser: null },
       override: null,
       legacy: false,
     });
@@ -182,7 +232,7 @@ describe('parsePrevious is total', () => {
       // The legacy shared updatedAt is NOT an observation date for either group
       // (that is incident A), so it is never promoted to a per-group date.
       dollar: { buy: 26.8925, sell: 27.027, date: null },
-      diesel: { sps: 149.2, tegus: 153.53, date: null },
+      diesel: { sps: 149.2, tegus: 153.53, date: null, parser: null },
       override: null,
       legacy: true,
     });

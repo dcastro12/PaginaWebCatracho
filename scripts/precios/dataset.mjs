@@ -16,9 +16,13 @@ const isoDate = (v) => {
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v ? v : null;
 };
 
+// A parser id is a short slug like `two-markers-galon+semana-que-inicia`. Anything
+// else read back from the file is not trusted as provenance.
+const parserId = (v) => (typeof v === 'string' && /^[a-z0-9+-]+$/.test(v) ? v : null);
+
 const emptySnapshot = () => ({
   dollar: { buy: null, sell: null, date: null },
-  diesel: { sps: null, tegus: null, date: null },
+  diesel: { sps: null, tegus: null, date: null, parser: null },
   override: null,
   legacy: false,
 });
@@ -33,7 +37,7 @@ function parseLegacy(content) {
     // The legacy shared updatedAt says when the FILE was written, not when each group
     // was observed (incident A), so per-group dates stay unknown on this path.
     dollar: { buy: grab('Compra'), sell: grab('Venta'), date: null },
-    diesel: { sps: grab('San Pedro Sula'), tegus: grab('Tegucigalpa'), date: null },
+    diesel: { sps: grab('San Pedro Sula'), tegus: grab('Tegucigalpa'), date: null, parser: null },
     override: null,
     legacy: true,
   };
@@ -63,7 +67,12 @@ export function parsePrevious(content) {
     if (snap && typeof snap === 'object' && !Array.isArray(snap)) {
       return {
         dollar: { buy: num(snap.dollar?.buy), sell: num(snap.dollar?.sell), date: isoDate(snap.dollar?.date) },
-        diesel: { sps: num(snap.diesel?.sps), tegus: num(snap.diesel?.tegus), date: isoDate(snap.diesel?.date) },
+        diesel: {
+          sps: num(snap.diesel?.sps),
+          tegus: num(snap.diesel?.tegus),
+          date: isoDate(snap.diesel?.date),
+          parser: parserId(snap.diesel?.parser),
+        },
         override: typeof snap.override === 'string' ? snap.override : null,
         legacy: false,
       };
@@ -87,11 +96,14 @@ export function buildFile({ dollar, diesel, override = null }) {
   // JSON.parse it. No formatter is configured, so nothing rewrites it. Keep it
   // low-cardinality: values, one ISO date per group and `id:expiry` only, or the
   // no-change guard breaks. Each date is the last successful scrape + validation of
-  // THAT group; there is deliberately no shared date.
+  // THAT group; there is deliberately no shared date. Provenance is the source id plus,
+  // for diesel, the id of the parser that produced the value (design 4): strategy and
+  // source ids ONLY. A timestamp, run id or counter here would change the file on every
+  // run and defeat the prev === next guard.
   const snapshot = JSON.stringify(
     {
-      dollar: { buy: dollar.buy, sell: dollar.sell, date: dollar.date },
-      diesel: { sps: diesel.sps, tegus: diesel.tegus, date: diesel.date },
+      dollar: { buy: dollar.buy, sell: dollar.sell, date: dollar.date, source: 'ficohsa' },
+      diesel: { sps: diesel.sps, tegus: diesel.tegus, date: diesel.date, source: 'laprensa', parser: diesel.parser ?? null },
       override,
     },
     null,
