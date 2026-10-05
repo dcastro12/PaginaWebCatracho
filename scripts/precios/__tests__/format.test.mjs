@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatLempira, parseNumber, today } from '../format.mjs';
+import { daysBetween, formatLempira, parseNumber, today } from '../format.mjs';
 
 describe('parseNumber', () => {
   it('parses plain decimals', () => {
@@ -37,5 +37,23 @@ describe('today', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 5, 12, 0, 0));
     expect(today()).toBe('05/01/2026');
+  });
+});
+
+describe('daysBetween', () => {
+  it('counts whole calendar days between two ISO dates', () => {
+    expect(daysBetween('2026-10-05', '2026-10-05')).toBe(0);
+    expect(daysBetween('2026-09-28', '2026-10-05')).toBe(7);
+    expect(daysBetween('2026-10-05', '2026-10-03')).toBe(-2);
+  });
+
+  it('crosses month, year and leap-day boundaries', () => {
+    expect(daysBetween('2026-12-30', '2027-01-02')).toBe(3);
+    expect(daysBetween('2028-02-28', '2028-03-01')).toBe(2);
+  });
+
+  it('is NaN for anything that is not an ISO date (callers decide, nothing throws)', () => {
+    expect(daysBetween('05/10/2026', '2026-10-05')).toBeNaN();
+    expect(daysBetween(undefined, '2026-10-05')).toBeNaN();
   });
 });

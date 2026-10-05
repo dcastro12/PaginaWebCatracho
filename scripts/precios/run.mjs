@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { todayISO } from './format.mjs';
 import { buildFile, readPrevious, targetFile } from './dataset.mjs';
 import { decideOutcome, renderReport } from './report.mjs';
-import { blockMessage, invalidOverrideMessage, missingBaseline, resolveOverride, validateGroup } from './validate.mjs';
+import { blockMessage, checkEffectiveDate, invalidOverrideMessage, missingBaseline, resolveOverride, validateGroup } from './validate.mjs';
 import { SOURCES, findLaPrensaArticlePath, parseDiesel, parseFicohsa } from './parsers.mjs';
 
 async function fetchHtml(url) {
@@ -30,7 +30,7 @@ async function scrapeLaPrensa(today) {
     throw new Error(`ningún parser reconoció el artículo (se probaron ${result.tried}). No se publica el diésel.`);
   }
   console.log('La Prensa parser:', result.id);
-  return { sps: result.sps, tegus: result.tegus };
+  return { sps: result.sps, tegus: result.tegus, parser: result.id, effective: result.effective };
 }
 
 // Parser provenance is a constant until slice 3 introduces named strategies.
@@ -60,13 +60,14 @@ function judge(group, fresh, baseline, override, ctx) {
   return { publish, blocked, overridden: publish ? overridden : [], overrideUsed: overridden };
 }
 
-export async function run({ readPreviousFn = readPrevious, env = process.env } = {}) {
+// `today` is injectable so tests never depend on the clock.
+export async function run({ readPreviousFn = readPrevious, env = process.env, today = todayISO() } = {}) {
   const dryRun = process.argv.includes('--dry-run');
 
   // Total reader: never throws; an unreadable file is an empty snapshot.
   const previous = await readPreviousFn();
   const baseline = previous.legacy ? NO_BASELINE : previous;
-  const todayIso = todayISO();
+  const todayIso = today;
   const override = resolveOverride(env.PRECIOS_OVERRIDE, todayIso);
   if (override && !override.ok) console.warn(invalidOverrideMessage(override));
   const ctx = { today: todayIso, provenance: PROVENANCE };
@@ -79,21 +80,47 @@ export async function run({ readPreviousFn = readPrevious, env = process.env } =
   }
 
   let dieselFresh = null;
+  let dieselMeta = null;
   try {
-    dieselFresh = await scrapeLaPrensa(todayIso);
+    const scraped = await scrapeLaPrensa(todayIso);
+    dieselFresh = { sps: scraped.sps, tegus: scraped.tegus };
+    dieselMeta = { parser: scraped.parser, effective: scraped.effective };
   } catch (err) {
     console.warn('La Prensa falló:', err.message);
   }
 
   const dollarJudge = judge('dollar', dollarFresh, baseline.dollar, override, ctx);
-  const dieselJudge = judge('diesel', dieselFresh, baseline.diesel, override, ctx);
+
+  // Announced price vs price in effect. The article states when its prices take effect.
+  //   pending: not in effect yet (Friday to Sunday). The announcement is not validated
+  //     or published; the current value stands. The scrape succeeded and the value is
+  //     still the one in effect, so the metric date advances (R-F1), and the run is green.
+  //   stale: the date is too old to be this week's article. Hard block, not overridable.
+  const effective = dieselMeta ? checkEffectiveDate(dieselMeta.effective, todayIso) : null;
+  const pending = effective?.status === 'pending';
+  let dieselJudge;
+  if (pending) {
+    console.log(
+      `El artículo anuncia precios vigentes desde ${effective.effective}: aún no rigen. Se conserva el valor vigente del diésel y su fecha avanza a hoy.`,
+    );
+    dieselJudge = { publish: true, blocked: [], overridden: [], overrideUsed: [] };
+  } else if (effective?.status === 'stale') {
+    console.error(blockMessage(effective.block, ctx));
+    dieselJudge = { publish: false, blocked: [effective.block], overridden: [], overrideUsed: [] };
+  } else {
+    dieselJudge = judge('diesel', dieselFresh, baseline.diesel, override, ctx);
+  }
 
   // Freshness is per group: the date of the last successful scrape + validation of
   // THAT group. A published group is stamped today even if its value is unchanged. A
   // group that is not published keeps its previous value AND its previous date,
   // never today (incident A).
   const dollar = dollarJudge.publish ? { ...dollarFresh, date: todayIso } : previous.dollar;
-  const diesel = dieselJudge.publish ? { ...dieselFresh, date: todayIso } : previous.diesel;
+  const diesel = pending
+    ? { ...previous.diesel, date: todayIso }
+    : dieselJudge.publish
+      ? { ...dieselFresh, date: todayIso }
+      : previous.diesel;
 
   const degradedReasons = [];
   if (!dollarFresh) degradedReasons.push('source-failed:ficohsa');
@@ -153,7 +180,7 @@ export async function run({ readPreviousFn = readPrevious, env = process.env } =
   }
 
   console.log('dollar', dollar, `(${dollarJudge.publish ? 'ficohsa' : 'previous'})`);
-  console.log('diesel', diesel, `(${dieselJudge.publish ? 'laprensa' : 'previous'})`);
+  console.log('diesel', diesel, `(${dieselJudge.publish && !pending ? 'laprensa' : 'previous'})`);
 
   const next = buildFile({ dollar, diesel, override: override?.ok ? `${override.id}:${override.expires}` : null });
   if (dryRun) {
