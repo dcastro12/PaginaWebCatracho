@@ -4,13 +4,13 @@ export const informationSnapshot = {
   "dollar": {
     "buy": 26.8883,
     "sell": 27.0227,
-    "date": "2026-10-07",
+    "date": "2026-10-08",
     "source": "ficohsa"
   },
   "diesel": {
     "sps": 149.29,
     "tegus": 153.53,
-    "date": "2026-10-07",
+    "date": "2026-10-08",
     "source": "laprensa",
     "parser": "sps-marker-galon+vigentes-a-partir"
   },
