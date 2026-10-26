@@ -4,7 +4,7 @@ export const informationSnapshot = {
   "dollar": {
     "buy": 26.9002,
     "sell": 27.0347,
-    "date": "2026-10-25",
+    "date": "2026-10-26",
     "source": "ficohsa"
   },
   "diesel": {
