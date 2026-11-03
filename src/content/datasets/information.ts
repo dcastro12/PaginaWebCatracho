@@ -2,9 +2,9 @@ import type { InfoMetric } from '../../types/content';
 
 export const informationSnapshot = {
   "dollar": {
-    "buy": 26.9153,
-    "sell": 27.0499,
-    "date": "2026-11-02",
+    "buy": 26.908,
+    "sell": 27.0425,
+    "date": "2026-11-03",
     "source": "ficohsa"
   },
   "diesel": {
@@ -20,12 +20,12 @@ export const informationSnapshot = {
 export const dollarMetrics: InfoMetric[] = [
   {
     label: 'Compra',
-    value: 'L 26.9153',
+    value: 'L 26.9080',
     helper: 'Referencia de compra',
   },
   {
     label: 'Venta',
-    value: 'L 27.0499',
+    value: 'L 27.0425',
     helper: 'Referencia de venta',
   },
 ];
